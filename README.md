@@ -97,6 +97,10 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
+## TODOs
+1. Actual JSONPath support.
+2. Distribute binary via [Homebrew](https://brew.sh/).
+
 ## License
 [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html)
 
