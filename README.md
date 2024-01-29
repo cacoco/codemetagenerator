@@ -5,8 +5,8 @@ This project is a [CodeMeta](https://codemeta.github.io/) project description ge
 To install this project, you need to have [Go](https://go.dev/) installed on your machine. Once you have Go installed, you can clone this repository and build the project.
 
 ```bash
-git clone https://github.com/username/project.git
-cd project
+git clone https://github.com/cacoco/codemetagenerator.git
+cd codemetagenerator
 go build
 ```
 
