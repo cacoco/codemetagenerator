@@ -3,10 +3,13 @@ package internal
 import (
 	"testing"
 
-	"encoding/json"
+	"github.com/ohler55/ojg/oj"
+	"github.com/onsi/gomega"
 )
 
 func TestUpdateMapValue(t *testing.T) {
+	g := gomega.NewWithT(t)
+
 	// Initialize a testMap
 	var testMap map[string]any
 	text := `{
@@ -28,9 +31,9 @@ func TestUpdateMapValue(t *testing.T) {
 			}
 		}
 	}`
-	jsonErr := json.Unmarshal([]byte(text), &testMap)
-	if jsonErr != nil {
-		t.Errorf("Marshal of JSON text to object returned an error: %v", jsonErr)
+	ojErr := oj.Unmarshal([]byte(text), &testMap)
+	if ojErr != nil {
+		t.Errorf("Marshal of oj text to object returned an error: %v", ojErr)
 	}
 
 	// update nested key
@@ -72,21 +75,12 @@ func TestUpdateMapValue(t *testing.T) {
 		t.Errorf("UpdateMapValue did not return an error when it should have")
 	}
 
-	// Check the state of the testMap
-	expected := `{"key1":[{"key2":30},{"key4":4}],"key3":["four","two"],"key5":"goodbye","key6":{"key7":"seven","key8":8,"key9":{"key10":[1,2,30],"key11":{"key12":"twenty-twelve"},"key13":"world"}}}`
-
-	// Convert the testMap to a string
-	b, err := json.Marshal(testMap)
-	if err != nil {
-		t.Errorf("Marshal returned an error: %v", err)
-	}
-	actual := string(b)
-	if actual != expected {
-		t.Errorf("Final map state comparison failed, got: %v, want: %v.", actual, expected)
-	}
+	compare(g, testMap, `{"key1":[{"key2":30},{"key4":4}],"key3":["four","two"],"key5":"goodbye","key6":{"key7":"seven","key8":8,"key9":{"key10":[1,2,30],"key11":{"key12":"twenty-twelve"},"key13":"world"}}}`)
 }
 
 func TestInsertMapValue(t *testing.T) {
+	g := gomega.NewWithT(t)
+
 	// Initialize a testMap
 	var testMap map[string]any
 	text := `{
@@ -108,9 +102,9 @@ func TestInsertMapValue(t *testing.T) {
 			}
 		}
 	}`
-	jsonErr := json.Unmarshal([]byte(text), &testMap)
-	if jsonErr != nil {
-		t.Errorf("Marshal of JSON text to object returned an error: %v", jsonErr)
+	ojErr := oj.Unmarshal([]byte(text), &testMap)
+	if ojErr != nil {
+		t.Errorf("Marshal of oj text to object returned an error: %v", ojErr)
 	}
 
 	err1 := InsertMapValue(testMap, "key1[0].key3", 3)
@@ -151,20 +145,12 @@ func TestInsertMapValue(t *testing.T) {
 		t.Errorf("InsertMapValue did not return an error when it should have")
 	}
 
-	// Check the state of the testMap
-	expected := `{"key1":[{"key2":2,"key3":3},{"key14":14,"key4":4}],"key3":["one","two"],"key5":"hello","key6":{"key7":"seven","key8":8,"key9":{"key10":[1,2,3],"key11":{"key12":"twelve","key23":"twenty-three"},"key13":"world"}}}`
-	// Convert the testMap to a string
-	b, err := json.Marshal(testMap)
-	if err != nil {
-		t.Errorf("Marshal returned an error: %v", err)
-	}
-	actual := string(b)
-	if actual != expected {
-		t.Errorf("Final map state comparison failed, got: %v, want: %v.", actual, expected)
-	}
+	compare(g, testMap, `{"key1":[{"key2":2,"key3":3},{"key14":14,"key4":4}],"key3":["one","two"],"key5":"hello","key6":{"key7":"seven","key8":8,"key9":{"key10":[1,2,3],"key11":{"key12":"twelve","key23":"twenty-three"},"key13":"world"}}}`)
 }
 
 func TestRemoveMapValue(t *testing.T) {
+	g := gomega.NewWithT(t)
+
 	// Initialize a testMap
 	var testMap map[string]any
 	text := `{
@@ -186,9 +172,9 @@ func TestRemoveMapValue(t *testing.T) {
 			}
 		}
 	}`
-	jsonErr := json.Unmarshal([]byte(text), &testMap)
-	if jsonErr != nil {
-		t.Errorf("Marshal of JSON text to object returned an error: %v", jsonErr)
+	ojErr := oj.Unmarshal([]byte(text), &testMap)
+	if ojErr != nil {
+		t.Errorf("Marshal of oj text to object returned an error: %v", ojErr)
 	}
 
 	err1 := RemoveMapValue(testMap, "key1[0].key2") // removes "key2": 2 -> [{}, {"key4": 4}]
@@ -224,15 +210,17 @@ func TestRemoveMapValue(t *testing.T) {
 		t.Errorf("RemoveMapValue returned an error: %v", err8)
 	}
 
-	// Check the state of the testMap
-	expected := `{"key1":[],"key3":["one","two"],"key5":"hello","key6":{"key7":"seven","key8":8,"key9":{"key11":{"key12":"twelve"}}}}`
-	// Convert the testMap to a string
-	b, err := json.Marshal(testMap)
-	if err != nil {
-		t.Errorf("Marshal returned an error: %v", err)
-	}
-	actual := string(b)
-	if actual != expected {
-		t.Errorf("Final map state comparison failed, got: %v, want: %v.", actual, expected)
-	}
+	compare(g, testMap, `{"key1":[],"key3":["one","two"],"key5":"hello","key6":{"key7":"seven","key8":8,"key9":{"key11":{"key12":"twelve"}}}}`)
+}
+
+func compare(g *gomega.WithT, actualMap map[string]any, expectedStr string) {
+	var actual map[string]any = make(map[string]any)
+	// Need to bounce through the oj parser for the testMap to ensure same types are used for added fields
+	actualStr := oj.JSON(actualMap)
+	oj.Unmarshal([]byte(actualStr), &actual)
+
+	var expectedMap map[string]any = make(map[string]any)
+	oj.Unmarshal([]byte(expectedStr), &expectedMap)
+
+	g.Ω(actual).Should(gomega.Equal(expectedMap))
 }

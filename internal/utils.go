@@ -2,7 +2,6 @@ package internal
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ohler55/ojg/oj"
 
 	"github.com/nexidian/gocliselect"
 	"github.com/samber/lo"
@@ -62,14 +63,14 @@ func LoadInProgressCodeMetaFile() (*map[string]any, error) {
 			return nil, err
 		}
 		var codemeta map[string]any
-		json.Unmarshal(bytes, &codemeta)
+		oj.Unmarshal(bytes, &codemeta)
 		return &codemeta, nil
 	}
 }
 
 func SaveInProgressCodeMetaFile(codemeta *map[string]interface{}) error {
 	homeDir := UserHomeDir
-	file, err := json.MarshalIndent(codemeta, "", " ")
+	file, err := oj.Marshal(*codemeta, 80.2)
 	if err != nil {
 		return err
 	}
@@ -378,14 +379,14 @@ func GetAndCacheLicenseFile(overwrite bool) error {
 			return err
 		}
 		var licensesList LicensesList
-		json.Unmarshal(bytes, &licensesList)
+		oj.Unmarshal(bytes, &licensesList)
 
 		var licensesMap map[string]string = make(map[string]string)
 		lo.ForEach(licensesList.Licenses, func(license LicenseStruct, _ int) {
 			licensesMap[license.LicenseId] = license.Reference
 		})
 
-		json, err := json.MarshalIndent(licensesMap, "", " ")
+		json, err := oj.Marshal(licensesMap, 80.2)
 		if err != nil {
 			return err
 		}
@@ -452,7 +453,7 @@ func loadLicenseFile() (*map[string]string, error) {
 		return nil, err
 	}
 	var licenses map[string]string
-	json.Unmarshal(bytes, &licenses)
+	oj.Unmarshal(bytes, &licenses)
 
 	return &licenses, nil
 }

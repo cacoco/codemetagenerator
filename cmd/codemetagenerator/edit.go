@@ -45,7 +45,7 @@ codemetagenerator edit 'name' 'My New Name'
 This will update the 'name' property to 'My New Name'. To edit a nested property, use dot 
 notation. For example, to edit the 'email' property of the 'maitainer' object, run:
 
-codemetagenerator edit 'maintainer.email'
+codemetagenerator edit 'maintainer.email' 'newemail@updated.org'
 
 This will update the 'email' property of the 'maintainer' object to 'My New Email'. To edit 
 a nested array property, use a bracket index with dot notation. For example, edit the 
