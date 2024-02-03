@@ -24,13 +24,12 @@ codemetagenerator --help
 Available Commands:
   add         Adds resources [authors, contributors, keywords] to the in-progress codemeta.json file
   clean       Clean the $HOME/.codemetagenerator directory
-  edit        Edit an existing property value by key, e.g., 'foo' or 'foo.bar' or 'foo[1]', or 'foo[1].bar' in the in-progress codemeta.json file
+  delete      Delete an arbitrary key and its value in the in-progress codemeta.json file.
   generate    Generate the final codemeta.json file to the optional output file or to the console
   help        Help about any command
-  insert      Insert a new property with the given value by key, e.g., 'foo' or 'foo.bar' or 'foo[1]', or 'foo[1].bar' into the in-progress codemeta.json file
   licenses    List (or refresh cached) SPDX license IDs
   new         Start a new codemeta.json file. When complete, run "codemetagenerator generate" to generate the final codemeta.json file
-  remove      Remove a property by key, e.g., 'foo' or 'foo.bar' or 'foo[1]', or 'foo[1].bar' from the in-progress codemeta.json file
+  set         Set the value of an arbitrary key in the in-progress codemeta.json file.
 ```
 
 #### New
@@ -44,13 +43,15 @@ This will walk you through an interactive session and will store an "in-progress
 you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`.
 
 #### Add
+Add helps with the addition of 3 specific fields: `author`, `contributor`, or `keyword`. The command provides a wizard for adding these values. 
+
 For example to add an `author`:
 
 ```bash
 codemetagenerator add author
 ```
 
-This will walk you through an interactive session to create a [`Person`](https://schema.org/Person) or [`Organization`](https://schema.org/Organization) author. This command can be run multiple times to add more authors. Similarly, this can also be done for adding one or more contributors:
+will walk you through an interactive session to create a [`Person`](https://schema.org/Person) or [`Organization`](https://schema.org/Organization) author. This command can be run multiple times to add more authors. Similarly, this can also be done for adding one or more contributors:
 
 ```bash
 codemetagenerator add contributor
@@ -64,23 +65,21 @@ To add one or more keywords:
 codemetagenerator add keyword "Java" "JVM" "etc"
 ```
 
-The `keyword` command accepts multiple terms but the command can also be run multiple times to add more keywords.
+The `keyword` command accepts multiple terms but can also be run multiple times to add more keywords.
 
-#### Remove
-Properties can be removed by running the `remove` command. This allows for removing *any property* in the `codemeta.json` file including an author, contributor, or keyword.
-
-```bash
-codemetagenerator remove "version"
-```
-
-#### Insert
-New properties can be inserted into object values in the `codemeta.json` file (arrays cannot be added to via insert). This allows for adding any other `Codemeta` key and value not covered in the generator.
+#### Delete
+Properties can be removed by running the `delete` command. This allows for removing *any value* in the `codemeta.json` file for a given key specified via the [Path Syntax](#path-syntax).
 
 ```bash
-codemetagenerator insert "relatedLink" "https://thisisrelated.org"
+codemetagenerator delete "version"
 ```
 
-Note: only a single JSON value can be inserted (e.g. no objects or arrays) for a given property key.
+#### Set
+New properties can be inserted or exisiting properties can be updated in the `codemeta.json` file with the `set` command. Keys must be specified via the [Path Syntax](#path-syntax).
+
+```bash
+codemetagenerator set "relatedLink" "https://thisisrelated.org"
+```
 
 #### Generate
 Once creating and editing are done, you can run `generate` to produce a final `codemeta.json`. Generation accepts an optional `-o | --output` flag that allows for specifying an output file. If this flag is not provided, the output is sent to the console.
@@ -88,6 +87,10 @@ Once creating and editing are done, you can run `generate` to produce a final `c
 ```bash
 codemetagenerator generate
 ```
+
+### Path Syntax
+The syntax follows the `sjson` ([https://github.com/tidwall/sjson](https://github.com/tidwall/sjson)) [Path Syntax](https://github.com/tidwall/sjson?tab=readme-ov-file#path-syntax).
+
 
 ## CodeMeta
 [CodeMeta](https://codemeta.github.io) is a [JSON-LD](https://json-ld.org/) file format used to describe software projects. See a [full example](https://github.com/ropensci/codemetar/blob/main/codemeta.json).

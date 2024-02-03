@@ -1,4 +1,4 @@
-package codemetagenerator
+package cmd
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 )
 
 func Test_ExecuteAddCmd(t *testing.T) {
-	add := &cobra.Command{Use: "add", RunE: AddCmdRunE}
+	add := &cobra.Command{Use: "add", RunE: addCmdRunE}
 	b := bytes.NewBufferString("")
 	add.SetOut(b)
 	add.SetErr(b)
@@ -20,7 +20,7 @@ func Test_ExecuteAddCmd(t *testing.T) {
 }
 
 func Test_ExecuteAddCmd1(t *testing.T) {
-	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: AddCmdRunE}
+	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: addCmdRunE}
 	b := bytes.NewBufferString("")
 	add.SetOut(b)
 	add.SetErr(b)
@@ -34,7 +34,7 @@ func Test_ExecuteAddCmd1(t *testing.T) {
 }
 
 func Test_ExecuteAddCmd2(t *testing.T) {
-	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: AddCmdRunE}
+	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: addCmdRunE}
 	b := bytes.NewBufferString("")
 	add.SetOut(b)
 	add.SetErr(b)
@@ -48,7 +48,7 @@ func Test_ExecuteAddCmd2(t *testing.T) {
 }
 
 func Test_ExecuteAddCmd3(t *testing.T) {
-	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: AddCmdRunE}
+	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: addCmdRunE}
 	b := bytes.NewBufferString("")
 	add.SetOut(b)
 	add.SetErr(b)
@@ -62,7 +62,7 @@ func Test_ExecuteAddCmd3(t *testing.T) {
 }
 
 func Test_ExecuteAddCmd4(t *testing.T) {
-	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: AddCmdRunE}
+	add := &cobra.Command{Use: "add", Args: checkArgs, RunE: addCmdRunE}
 	b := bytes.NewBufferString("")
 	add.SetOut(b)
 	add.SetErr(b)

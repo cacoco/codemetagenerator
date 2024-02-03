@@ -1,4 +1,4 @@
-package codemetagenerator
+package cmd
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func checkArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func AddCmdRunE(cmd *cobra.Command, args []string) error {
+func addCmdRunE(cmd *cobra.Command, args []string) error {
 	return fmt.Errorf("this command must be run with a resource sub-command like author, contributor or keyword")
 }
 
@@ -51,7 +51,7 @@ running the "remove" command. When you are done adding resources, run
 "generate" to generate the final codemeta.json file. 
 
 Note that this command must be run with a resource sub-command like author, contributor or keyword.`,
-	RunE: AddCmdRunE,
+	RunE: addCmdRunE,
 }
 
 func init() {
