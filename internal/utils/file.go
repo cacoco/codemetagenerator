@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
+	"github.com/ohler55/ojg/gen"
 	"github.com/ohler55/ojg/oj"
 	"github.com/samber/lo"
 	"golang.org/x/exp/maps"
@@ -51,6 +52,22 @@ func GetLicensesFilePath(basedir string) string {
 	return basedir + sPDXLicensesFilePath
 }
 
+func ReadJSON(path string) (*string, error) {
+	var p gen.Parser
+	bytes, err := LoadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	node, _ := p.Parse(bytes)
+	json := oj.JSON(node, &oj.Options{Sort: true, Indent: 2, OmitNil: true})
+	return &json, nil
+}
+
+func WriteJSON(path string, json string) error {
+	return os.WriteFile(path, []byte(json), 0644)
+}
+
 func Unmarshal(path string) (*map[string]any, error) {
 	bytes, err := LoadFile(path)
 	if err != nil {
@@ -61,12 +78,19 @@ func Unmarshal(path string) (*map[string]any, error) {
 	return &m, nil
 }
 
-func Marshal(path string, m *map[string]any) error {
-	bytes, err := oj.Marshal(*m, 80.2)
+func Marshal(path string, m *map[string]any, args ...any) error {
+	var p gen.Parser
+	bytes, err := oj.Marshal(*m, args...)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, bytes, 0644)
+
+	node, err := p.Parse(bytes)
+	if err != nil {
+		return err
+	}
+	json := oj.JSON(node, &oj.Options{Sort: true, Indent: 2, OmitNil: true})
+	return WriteJSON(path, json)
 }
 
 func LoadFile(filePath string) ([]byte, error) {
@@ -122,19 +146,15 @@ func GetAndCacheLicenseFile(basedir string, overwrite bool) error {
 		var licensesList model.LicensesList
 		oj.Unmarshal(bytes, &licensesList)
 
-		var licensesMap map[string]string = make(map[string]string)
+		var licensesMap map[string]any = make(map[string]any)
 		lo.ForEach(licensesList.Licenses, func(license model.LicenseStruct, _ int) {
 			licensesMap[license.LicenseId] = license.Reference
 		})
 
-		json, err := oj.Marshal(licensesMap, 80.2)
+		// marshal to file
+		err = Marshal(licensesFilePath, &licensesMap)
 		if err != nil {
-			return fmt.Errorf("unable to marshal licenses map into json: %s", err.Error())
-		}
-		// Write new to file
-		writeerr := os.WriteFile(licensesFilePath, json, 0644)
-		if writeerr != nil {
-			return fmt.Errorf("unable to save translated SPDX licenses file: %s", writeerr.Error())
+			return fmt.Errorf("unable to save translated SPDX licenses file: %s", err.Error())
 		}
 	}
 	return nil
