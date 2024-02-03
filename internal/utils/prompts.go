@@ -1,0 +1,128 @@
+package utils
+
+import (
+	"fmt"
+	"io"
+	"net/mail"
+	"net/url"
+
+	"github.com/cacoco/codemetagenerator/internal/model"
+	"github.com/manifoldco/promptui"
+)
+
+func Nop(s string) error {
+	return nil
+}
+
+func IsUrl(str string) error {
+	u, err := url.Parse(str)
+	if err != nil {
+		return err
+	}
+	if u.Scheme == "" || u.Host == "" {
+		return fmt.Errorf("invalid url: %s", str)
+	}
+	return nil
+}
+
+func ValidEmailAddress(address string) error {
+	_, err := mail.ParseAddress(address)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func MkPrompt(stdin *io.ReadCloser, stdout *io.WriteCloser, text string) (*string, error) {
+	prompt := promptui.Prompt{
+		Label:  text,
+		Stdin:  *stdin,
+		Stdout: *stdout,
+	}
+
+	result, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Fprint(*stdout, result)
+	return &result, nil
+}
+
+func NewPersonOrOrganizationPrompt(reader *Reader, writer *Writer, label string) (*map[string]any, error) {
+	stdin := (*reader).Stdin()
+	stdout := (*writer).Stdout()
+
+	options := []model.MenuOption{
+		{Name: "Person", Type: "person"},
+		{Name: "Organization", Type: "organization"},
+	}
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "➞ {{ .Name | cyan }}",
+		Inactive: "  {{ .Name | cyan }}",
+		Selected: "{{ .Name | red | cyan }}",
+		Details: fmt.Sprintf(`--------- %s ----------
+{{ "Name:" | faint }}	{{ .Name }}`, label),
+	}
+
+	prompt := promptui.Select{
+		Label:     "Please enter a " + label + " type:",
+		Items:     options,
+		Templates: templates,
+		Size:      2,
+		Searcher:  nil,
+		Stdin:     stdin,
+		Stdout:    stdout,
+	}
+
+	i, _, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	keyType := options[i].Type
+	switch keyType {
+	case "person":
+		givenName, err := MkPrompt(&stdin, &stdout, "Enter the given (first) name of the person")
+		if err != nil {
+			return nil, err
+		}
+		familyName, err := MkPrompt(&stdin, &stdout, "Enter the family (last) name of the person")
+		if err != nil {
+			return nil, err
+		}
+		email, err := MkPrompt(&stdin, &stdout, "Enter the email address of the person")
+		if err != nil {
+			return nil, err
+		}
+		err = ValidEmailAddress(*email)
+		if err != nil {
+			return nil, err
+		}
+		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the person (see: https://orcid.org)")
+		if err != nil {
+			return nil, err
+		}
+		return model.NewPerson(givenName, familyName, email, id), nil
+	case "organization":
+		name, err := MkPrompt(&stdin, &stdout, "Enter the name of the organization")
+		if err != nil {
+			return nil, err
+		}
+		url, err := MkPrompt(&stdin, &stdout, "Enter the URL of the organization")
+		if err != nil {
+			return nil, err
+		}
+		err = IsUrl(*url)
+		if err != nil {
+			return nil, err
+		}
+		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the organization (see: https://orcid.org)")
+		if err != nil {
+			return nil, err
+		}
+		return model.NewOrganization(name, url, id), nil
+	default:
+		return nil, fmt.Errorf("Invalid selection: " + keyType)
+	}
+}

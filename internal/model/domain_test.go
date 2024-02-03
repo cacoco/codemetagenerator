@@ -1,11 +1,14 @@
-package internal
+package model
 
 import (
-	"reflect"
 	"testing"
+
+	"github.com/onsi/gomega"
 )
 
 func TestNewCodeMetaDefinition(t *testing.T) {
+	g := gomega.NewWithT(t)
+
 	id := "id"
 	description := "description"
 	name := "name"
@@ -23,6 +26,20 @@ func TestNewCodeMetaDefinition(t *testing.T) {
 	runtimePlatform := "runtimePlatform"
 	license := "license"
 	readme := "readme"
+
+	var testbase = make(map[string]any)
+	testbase[Identifier] = id
+	testbase[Name] = name
+	testbase[Description] = description
+	testbase[Version] = version
+	testbase[Maintainer] = maintainer
+	testbase[ProgrammingLanguage] = programmingLanguage
+	testbase[DevelopmentStatus] = developmentStatus
+	testbase[License] = license
+	testbase[RuntimePlatform] = runtimePlatform
+	testbase[CodeRepository] = codeRepository
+	testbase[Readme] = readme
+
 	expected := map[string]any{
 		Context:             DefaultContext,
 		Type:                SoftwareSourceCodeType,
@@ -39,10 +56,7 @@ func TestNewCodeMetaDefinition(t *testing.T) {
 		Readme:              readme,
 	}
 
-	actual := NewCodeMetaDefinition(&id, &name, &description, &version, maintainer, programmingLanguage, developmentStatus, &license, &runtimePlatform, &codeRepository, &readme)
+	actual := NewCodemeta(&testbase)
 
-	matching := reflect.DeepEqual(*actual, expected)
-	if !matching {
-		t.Errorf("NewCodeMetaDefinition returned an unexpected value, got: %v, want: %v.", actual, expected)
-	}
+	g.Ω(*actual).Should(gomega.Equal(expected))
 }

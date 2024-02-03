@@ -1,7 +1,7 @@
-package internal
+package model
 
 const (
-	// JSON Keys
+	// Default Supported JSON Keys
 	Type                = "@type"
 	Id                  = "@id"
 	Context             = "@context"
@@ -52,8 +52,13 @@ type LicensesList struct {
 	Licenses           []LicenseStruct `json:"licenses"`
 }
 
-func NewPerson(givenName *string, familyName *string, email *string, id *string) *map[string]string {
-	return &map[string]string{
+type MenuOption struct {
+	Name string
+	Type string
+}
+
+func NewPerson(givenName *string, familyName *string, email *string, id *string) *map[string]any {
+	return &map[string]any{
 		Type:       PersonType,
 		GivenName:  *givenName,
 		FamilyName: *familyName,
@@ -62,8 +67,8 @@ func NewPerson(givenName *string, familyName *string, email *string, id *string)
 	}
 }
 
-func NewOrganization(name *string, url *string, id *string) *map[string]string {
-	return &map[string]string{
+func NewOrganization(name *string, url *string, id *string) *map[string]any {
+	return &map[string]any{
 		Type: OrganizationType,
 		Name: *name,
 		URL:  *url,
@@ -71,28 +76,17 @@ func NewOrganization(name *string, url *string, id *string) *map[string]string {
 	}
 }
 
-func NewProgrammingLanguage(name *string, url *string) *map[string]string {
-	return &map[string]string{
+func NewProgrammingLanguage(name *string, url *string) *map[string]any {
+	return &map[string]any{
 		Type: ComputerLanguageType,
 		Name: *name,
 		URL:  *url,
 	}
 }
 
-func NewCodeMetaDefinition(id *string, name *string, description *string, version *string, maintainer *map[string]string, programmingLanguage *map[string]string, developmentStatus string, license *string, runtimePlatform *string, codeRepository *string, readme *string) *map[string]any {
-	return &map[string]any{
-		Context:             DefaultContext,
-		Type:                SoftwareSourceCodeType,
-		Identifier:          *id,
-		Description:         *description,
-		Name:                *name,
-		Maintainer:          maintainer,
-		CodeRepository:      *codeRepository,
-		Version:             *version,
-		DevelopmentStatus:   developmentStatus,
-		ProgrammingLanguage: programmingLanguage,
-		RuntimePlatform:     *runtimePlatform,
-		License:             *license,
-		Readme:              *readme,
-	}
+func NewCodemeta(base *map[string]any) *map[string]any {
+	m := *base
+	m[Context] = DefaultContext
+	m[Type] = SoftwareSourceCodeType
+	return &m
 }
