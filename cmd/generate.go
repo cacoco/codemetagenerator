@@ -2,33 +2,27 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/cacoco/codemetagenerator/internal/utils"
-	"github.com/ohler55/ojg/oj"
 	"github.com/spf13/cobra"
 )
 
 func generate(basedir string, writer utils.Writer, outputPath string) error {
 	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 
-	codemeta, err := utils.Unmarshal(inProgressFilePath)
-	// only generate if there are no errors
+	json, err := utils.ReadJSON(inProgressFilePath)
 	if err != nil {
-		return writer.Errorf("unable to load the in-progress codemeta.json file for generation. Have you run \"codemetagenerator new\" yet?")
+		return err
 	}
-	bytes, err := oj.Marshal(codemeta, 80.2)
-	if err != nil {
-		return writer.Errorf("unable to marshal codemeta.json file in bytes for generation: %s", err.Error())
-	}
+
 	if outputPath != "" {
-		// write to file
-		err = os.WriteFile(outputPath, bytes, 0644)
+		err = utils.WriteJSON(outputPath, *json)
 		if err != nil {
 			return fmt.Errorf("unable to write codemeta.json file to output file %s: %s", outputPath, err.Error())
 		}
 	} else {
-		writer.Println(string(bytes))
+		writer.Println(*json)
+
 	}
 	return nil
 }
