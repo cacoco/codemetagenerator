@@ -18,14 +18,20 @@ func Test_ExecuteNewCmd(t *testing.T) {
 	temp := t.TempDir()
 	// setup
 	os.Mkdir(utils.GetHomeDir(temp), 0755)
-	file, le := os.ReadFile("../testdata/spdx-licenses.json")
-	if le != nil {
-		t.Errorf("Unexpected error: %v", le)
+	file, err := os.ReadFile("../testdata/spdx-licenses.json")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
 	}
-	we := os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
-	if we != nil {
-		t.Errorf("Unexpected error: %v", we)
+	err = os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
 	}
+	supportedLicenses, err := utils.GetSupportedLicenses(temp)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	SupportedLicenses.setSupportedLicenses(*supportedLicenses)
+
 	givenName := "givenName"
 	familyName := "familyName"
 	email := "person@email.org"
@@ -63,7 +69,7 @@ func Test_ExecuteNewCmd(t *testing.T) {
 	new.SetErr(buf)
 	new.SetArgs([]string{})
 
-	err := new.Execute()
+	err = new.Execute()
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

@@ -21,7 +21,7 @@ func set(basedir string, args []string) error {
 
 	result, err := setValue(bytes, path, value)
 	if err != nil {
-		return fmt.Errorf("unable to set the value of the property with path, `%s` in the in-progress codemeta.json file: %s", path, err.Error())
+		return err
 	}
 
 	return os.WriteFile(utils.GetInProgressFilePath(basedir), []byte(*result), 0644)

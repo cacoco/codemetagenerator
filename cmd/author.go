@@ -43,7 +43,7 @@ When complete, run "generate" to generate the final codemeta.json file.`,
 		currentValue := mutateMap[model.Author]
 		author, err := newAuthor(stdin, stdout)
 		if err != nil {
-			return fmt.Errorf("unable to create new author: %s", err.Error())
+			return err
 		}
 		if currentValue == nil {
 			mutateMap[model.Author] = []any{author}

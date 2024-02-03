@@ -11,6 +11,8 @@ type (
 	}
 )
 
+var NilStack = &Stack[string]{nil, 0}
+
 // Create a new stack
 func New[T any]() *Stack[T] {
 	return &Stack[T]{nil, 0}

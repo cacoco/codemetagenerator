@@ -2,10 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
 	"github.com/ohler55/ojg/gen"
@@ -15,7 +12,7 @@ import (
 )
 
 const (
-	sPDXLicensesURL = "https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json"
+	SPDXLicensesURL = "https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json"
 
 	codemetaGeneratorDirectoryName = ".codemetagenerator"
 	inProgressFilePath             = "/" + codemetaGeneratorDirectoryName + "/codemeta.inprogress.json"
@@ -30,8 +27,7 @@ func getUserHomeDir() (string, error) {
 
 func MkHomeDir(basedir string) error {
 	homedir := basedir + "/" + codemetaGeneratorDirectoryName
-	_, err := os.Stat(homedir)
-	if err != nil {
+	if _, err := os.Stat(homedir); os.IsNotExist(err) {
 		err := os.Mkdir(homedir, 0755)
 		if err != nil {
 			return fmt.Errorf("unable to create codemetagenerator directory: %s", err.Error())
@@ -110,41 +106,21 @@ func DeleteFile(path string) error {
 	return os.Remove(path)
 }
 
-func GetAndCacheLicenseFile(basedir string, overwrite bool) error {
+// converts the full SPDX JSON file into a JSON file of licenseId => reference and store it
+func CacheLicensesFile(basedir string, spdxFileBytes *[]byte, overwrite bool) error {
 	// ensure we have a home directory
 	err := MkHomeDir(basedir)
 	if err != nil {
 		return err
 	}
 
-	licensesFilePath := basedir + sPDXLicensesFilePath
-
-	_, err = os.Stat(licensesFilePath)
-	if err != nil || overwrite {
-		// file does not exist - download and store it
-		spdxClient := http.Client{
-			Timeout: time.Second * 2, // Timeout after 2 seconds
-		}
-		request, err := http.NewRequest(http.MethodGet, sPDXLicensesURL, nil)
-		if err != nil {
-			return err
-		}
-		request.Header.Set("User-Agent", "codemetagenerator")
-		request.Header.Set("Accept", "application/json")
-
-		response, getErr := spdxClient.Do(request)
-		if getErr != nil {
-			return getErr
-		}
-		defer response.Body.Close()
-
-		// convert into reference keyed by licenseId => [licenseId] -> reference (url)
-		bytes, err := io.ReadAll(response.Body)
-		if err != nil {
-			return fmt.Errorf("unable to read response body when downloading SPDX license file: %s", err.Error())
-		}
+	licensesFilePath := GetLicensesFilePath(basedir)
+	if _, err = os.Stat(licensesFilePath); os.IsNotExist(err) || overwrite {
 		var licensesList model.LicensesList
-		oj.Unmarshal(bytes, &licensesList)
+		err := oj.Unmarshal(*spdxFileBytes, &licensesList)
+		if err != nil {
+			return fmt.Errorf("unable to unmarshal SPDX licenses file: %s", err.Error())
+		}
 
 		var licensesMap map[string]any = make(map[string]any)
 		lo.ForEach(licensesList.Licenses, func(license model.LicenseStruct, _ int) {
@@ -157,16 +133,12 @@ func GetAndCacheLicenseFile(basedir string, overwrite bool) error {
 			return fmt.Errorf("unable to save translated SPDX licenses file: %s", err.Error())
 		}
 	}
+
 	return nil
 }
 
 func GetSupportedLicenses(basedir string) (*[]string, error) {
-	err := GetAndCacheLicenseFile(basedir, false)
-	if err != nil {
-		return nil, err
-	}
-
-	bytes, err := os.ReadFile(basedir + sPDXLicensesFilePath)
+	bytes, err := os.ReadFile(GetLicensesFilePath(basedir))
 	if err != nil {
 		return nil, err
 	}

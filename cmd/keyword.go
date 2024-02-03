@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newKeyword(writer utils.Writer, codemeta map[string]any, args []string) ([]string, error) {
+func addKeywords(writer utils.Writer, codemeta map[string]any, args []string) []string {
 	currentValue := codemeta[model.Keywords]
 	if currentValue == nil {
 		codemeta[model.Keywords] = args
@@ -20,7 +20,7 @@ func newKeyword(writer utils.Writer, codemeta map[string]any, args []string) ([]
 	}
 	writer.Println("Added keyword(s): " + strings.Join(args, ", "))
 	keywords := codemeta[model.Keywords].([]string)
-	return keywords, nil
+	return keywords
 }
 
 // keywordCmd represents the keyword command
@@ -44,10 +44,8 @@ When complete, run "generate" to generate the final codemeta.json file.`,
 			return fmt.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
 		}
 		mutateMap := *codemeta
-		_, err = newKeyword(&utils.StdoutWriter{}, mutateMap, args)
-		if err != nil {
-			return fmt.Errorf("unable to create new keyword: %s", err.Error())
-		}
+		addKeywords(&utils.StdoutWriter{}, mutateMap, args)
+
 		err = utils.Marshal(inProgressFilePath, &mutateMap)
 		if err != nil {
 			return fmt.Errorf("unable to save in-progress codemeta.json file after editing: %s", err.Error())

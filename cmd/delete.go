@@ -6,11 +6,25 @@ import (
 
 	internal "github.com/cacoco/codemetagenerator/internal/json"
 	"github.com/cacoco/codemetagenerator/internal/utils"
-	"github.com/ohler55/ojg/oj"
 	"github.com/spf13/cobra"
 )
 
-func Delete(jsonBytes []byte, path string) (*string, error) {
+func delete(basedir string, args []string) error {
+	path := args[0]
+
+	bytes, err := utils.LoadFile(utils.GetInProgressFilePath(basedir))
+	if err != nil {
+		return fmt.Errorf("unable to load the in-progress codemeta.json file: %s", err.Error())
+	}
+
+	result, err := deleteValue(bytes, path)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(utils.GetInProgressFilePath(basedir), []byte(*result), 0644)
+}
+
+func deleteValue(jsonBytes []byte, path string) (*string, error) {
 	if len(path) == 0 {
 		return nil, fmt.Errorf("path is empty")
 	}
@@ -27,7 +41,7 @@ func Delete(jsonBytes []byte, path string) (*string, error) {
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Args:  cobra.ExactArgs(1),
-	Short: "Delete an arbitrary key and its value in the in-progress codemeta.json file.",
+	Short: "Delete an arbitrary key and its value from the in-progress codemeta.json file.",
 	Long: `This expects a path syntax for the key. A path is a series of keys separated by a dot.
 	For example, using this json:
 	{
@@ -60,20 +74,7 @@ var deleteCmd = &cobra.Command{
 "key3.-1"  => deletes the last element of the "key3" array, ("two").
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		inProgressFilePath := utils.GetInProgressFilePath(utils.UserHomeDir)
-
-		path := args[0]
-		data, err := utils.Unmarshal(inProgressFilePath)
-		if err != nil {
-			return err
-		}
-
-		json := oj.JSON(data)
-		result, err := internal.Delete(json, path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(inProgressFilePath, []byte(result), 0644)
+		return delete(utils.UserHomeDir, args)
 	},
 }
 
