@@ -33,17 +33,27 @@ func (*nopWriteCloser) Close() error {
 type (
 	TestWriter struct {
 		Writer
+		Verbose bool
 	}
 )
 
 func (r *TestWriter) Stdout() io.WriteCloser {
+	if r.Verbose {
+		return os.Stdout
+	}
 	return &nopWriteCloser{}
 }
 
 func (r *TestWriter) Print(a ...any) (n int, err error) {
+	if r.Verbose {
+		fmt.Print(a...)
+	}
 	return 0, nil
 }
 func (r *TestWriter) Println(a ...any) (n int, err error) {
+	if r.Verbose {
+		fmt.Println(a...)
+	}
 	return 0, nil
 }
 func (r *TestWriter) Errorf(format string, a ...any) error {

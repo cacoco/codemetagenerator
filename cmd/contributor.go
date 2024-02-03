@@ -41,7 +41,7 @@ When complete, run "generate" to generate the final codemeta.json file.`,
 		currrentValue := mutateMap[model.Contributor]
 		contributor, err := newContributor(&utils.StdinReader{}, &utils.StdoutWriter{})
 		if err != nil {
-			return fmt.Errorf("unable to create new contributor: %s", err.Error())
+			return err
 		}
 		if currrentValue == nil {
 			mutateMap[model.Contributor] = []any{contributor}

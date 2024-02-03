@@ -24,7 +24,7 @@ codemetagenerator --help
 Available Commands:
   add         Adds resources [authors, contributors, keywords] to the in-progress codemeta.json file
   clean       Clean the $HOME/.codemetagenerator directory
-  delete      Delete an arbitrary key and its value in the in-progress codemeta.json file.
+  delete      Delete an arbitrary key and its value from the in-progress codemeta.json file.
   generate    Generate the final codemeta.json file to the optional output file or to the console
   help        Help about any command
   licenses    List (or refresh cached) SPDX license IDs

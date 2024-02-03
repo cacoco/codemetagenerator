@@ -18,10 +18,7 @@ func TestNewKeyword(t *testing.T) {
 
 	writer := &utils.TestWriter{}
 
-	keywords, err := newKeyword(writer, current, args)
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
+	keywords := addKeywords(writer, current, args)
 	expected := []string{"one", "two", "three", "four", "five"}
 	g.Ω(keywords).Should(gomega.Equal(expected))
 }

@@ -14,7 +14,7 @@ func Nop(s string) error {
 	return nil
 }
 
-func IsUrl(str string) error {
+func ValidUrl(str string) error {
 	u, err := url.Parse(str)
 	if err != nil {
 		return err
@@ -28,12 +28,12 @@ func IsUrl(str string) error {
 func ValidEmailAddress(address string) error {
 	_, err := mail.ParseAddress(address)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid email address: %s", address)
 	}
 	return nil
 }
 
-func MkPrompt(stdin *io.ReadCloser, stdout *io.WriteCloser, text string) (*string, error) {
+func MkPrompt(stdin *io.ReadCloser, stdout *io.WriteCloser, text string, validate func(string) error) (*string, error) {
 	prompt := promptui.Prompt{
 		Label:  text,
 		Stdin:  *stdin,
@@ -41,6 +41,11 @@ func MkPrompt(stdin *io.ReadCloser, stdout *io.WriteCloser, text string) (*strin
 	}
 
 	result, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	// the promptui library validation fails in odd ways, so we manually validate here
+	err = validate(result)
 	if err != nil {
 		return nil, err
 	}
@@ -83,41 +88,33 @@ func NewPersonOrOrganizationPrompt(reader *Reader, writer *Writer, label string)
 	keyType := options[i].Type
 	switch keyType {
 	case "person":
-		givenName, err := MkPrompt(&stdin, &stdout, "Enter the given (first) name of the person")
+		givenName, err := MkPrompt(&stdin, &stdout, "Enter the given (first) name of the person", Nop)
 		if err != nil {
 			return nil, err
 		}
-		familyName, err := MkPrompt(&stdin, &stdout, "Enter the family (last) name of the person")
+		familyName, err := MkPrompt(&stdin, &stdout, "Enter the family (last) name of the person", Nop)
 		if err != nil {
 			return nil, err
 		}
-		email, err := MkPrompt(&stdin, &stdout, "Enter the email address of the person")
+		email, err := MkPrompt(&stdin, &stdout, "Enter the email address of the person", ValidEmailAddress)
 		if err != nil {
 			return nil, err
 		}
-		err = ValidEmailAddress(*email)
-		if err != nil {
-			return nil, err
-		}
-		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the person (see: https://orcid.org)")
+		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the person (see: https://orcid.org)", Nop)
 		if err != nil {
 			return nil, err
 		}
 		return model.NewPerson(givenName, familyName, email, id), nil
 	case "organization":
-		name, err := MkPrompt(&stdin, &stdout, "Enter the name of the organization")
+		name, err := MkPrompt(&stdin, &stdout, "Enter the name of the organization", Nop)
 		if err != nil {
 			return nil, err
 		}
-		url, err := MkPrompt(&stdin, &stdout, "Enter the URL of the organization")
+		url, err := MkPrompt(&stdin, &stdout, "Enter the URL of the organization", ValidUrl)
 		if err != nil {
 			return nil, err
 		}
-		err = IsUrl(*url)
-		if err != nil {
-			return nil, err
-		}
-		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the organization (see: https://orcid.org)")
+		id, err := MkPrompt(&stdin, &stdout, "Enter the identifier of the organization (see: https://orcid.org)", Nop)
 		if err != nil {
 			return nil, err
 		}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestFilter1(t *testing.T) {
-	g := gomega.NewGomegaWithT(t)
+	g := gomega.NewWithT(t)
 
 	input := []string{"a", "b", "c", "d", "e", "f"}
 	predicate := func(s string) bool {
@@ -19,7 +19,7 @@ func TestFilter1(t *testing.T) {
 }
 
 func TestFilter2(t *testing.T) {
-	g := gomega.NewGomegaWithT(t)
+	g := gomega.NewWithT(t)
 
 	input := []int{1, 2, 3, 4, 5, 6}
 	predicate := func(i int) bool {
@@ -31,7 +31,7 @@ func TestFilter2(t *testing.T) {
 }
 
 func TestFilter3(t *testing.T) {
-	g := gomega.NewGomegaWithT(t)
+	g := gomega.NewWithT(t)
 
 	input := []string{"a", "b", "", "d", "e", "f"}
 	predicate := func(s string) bool {
@@ -43,7 +43,7 @@ func TestFilter3(t *testing.T) {
 }
 
 func TestFilter4(t *testing.T) {
-	g := gomega.NewGomegaWithT(t)
+	g := gomega.NewWithT(t)
 
 	input := []any{"hello", 1, "world", 2, "!"}
 	predicate := func(a any) bool {
