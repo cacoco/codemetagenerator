@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Debug bool
+
 func SetVersionInfo(version, commit, date string) {
 	rootCmd.Version = fmt.Sprintf("%s (Built on %s from Git SHA %s)", version, date, commit)
 }
@@ -58,15 +60,21 @@ func (l *Licenses) setSupportedLicenses(supportedLicenses []string) {
 	l.supportedLicenses = supportedLicenses
 }
 
+func handleErr(writer utils.Writer, err error) {
+	if err != nil {
+		if Debug {
+			fmt.Fprintln(writer.StdErr(), "Error:", err.Error())
+		}
+	}
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "codemetagenerator",
 	Short: "An interactive codemeta.json file generator for projects",
 	Long: `
-CODEMETA JSON FILE GENERATOR
-----------------------------
 CodeMeta (https://codemeta.github.io) is a JSON-LD file format used to describe software projects. 
-This is an interactive tool that helps you generate a 'codemeta.json' file for your project.`,
+'codemetagenerator' is an interactive tool that helps you generate a valid 'codemeta.json' file.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		foundLicenses, err := loadSupportedLicenses(utils.UserHomeDir, utils.MkHttpClient())
 		if err != nil {
@@ -97,6 +105,8 @@ func init() {
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	rootCmd.CompletionOptions.DisableNoDescFlag = true
 	rootCmd.CompletionOptions.DisableDescriptions = true
+
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "enable debug mode")
 }
 
 // initConfig reads in config file and ENV variables if set.

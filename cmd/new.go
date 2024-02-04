@@ -11,26 +11,28 @@ func new(basedir string, reader utils.Reader, writer utils.Writer) error {
 	stdin := reader.Stdin()
 	stdout := writer.Stdout()
 
-	inProgressFilePath := utils.GetInProgressFilePath(basedir)
-
 	// clean up any previous file
+	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 	utils.DeleteFile(inProgressFilePath)
 
 	var result = make(map[string]any)
 
 	identifier, err := utils.MkPrompt(&stdin, &stdout, "Enter a unique identifier for your software source code", utils.Nop)
 	if err != nil {
-		return writer.Errorf("unable to create new identifier: %s", err.Error())
+		handleErr(writer, err)
+		return writer.Errorf("unable to create new identifier")
 	}
 
 	name, err := utils.MkPrompt(&stdin, &stdout, "Enter a name for your software source code", utils.Nop)
 	if err != nil {
-		return writer.Errorf("unable to create new name: %s", err.Error())
+		handleErr(writer, err)
+		return writer.Errorf("unable to create new name")
 	}
 
 	description, err := utils.MkPrompt(&stdin, &stdout, "Enter a description for your software source code", utils.Nop)
 	if err != nil {
-		return writer.Errorf("unable to create new description: %s", err.Error())
+		handleErr(writer, err)
+		return writer.Errorf("unable to create new description")
 	}
 
 	developmentStatusOptions := []model.MenuOption{
@@ -104,7 +106,8 @@ func new(basedir string, reader utils.Reader, writer utils.Writer) error {
 	if (*license) != "" {
 		referenceUrl, err := getLicenseReference(basedir, *license)
 		if err != nil {
-			return writer.Errorf("unable to create new license details URL: %s", err.Error())
+			handleErr(writer, err)
+			return writer.Errorf("unable to create new license details URL")
 		}
 		licenseDetailsUrl = *referenceUrl
 	}
@@ -135,7 +138,8 @@ func new(basedir string, reader utils.Reader, writer utils.Writer) error {
 
 	err = utils.Marshal(inProgressFilePath, codemeta)
 	if err != nil {
-		return writer.Errorf("unable to save in-progress codemeta.json file after editing: %s", err.Error())
+		handleErr(writer, err)
+		return writer.Errorf("unable to save in-progress codemeta.json file after editing")
 	}
 	writer.Println("⭐ Successfully created new in-progress codemeta.json file.")
 	writer.Println("👇 You can now add authors, contributors, keywords, and other fields to the in-progress codemeta.json file.")
@@ -148,7 +152,7 @@ func new(basedir string, reader utils.Reader, writer utils.Writer) error {
 	writer.Println("\tcodemetagenerator remove keywords")
 	writer.Println("↔️  To edit any key in the in-progress codemeta.json file, run the following command:")
 	writer.Println("\tcodemetagenerator edit key.subkey newValue")
-	writer.Println("✅ To generate the final codemeta.json file, run the following command:")
+	writer.Println("✅ To generate the resultant 'codemeta.json' file, run the following command:")
 	writer.Println("\tcodemetagenerator generate [-o|--output] <output file path>")
 
 	return nil
@@ -158,16 +162,17 @@ func new(basedir string, reader utils.Reader, writer utils.Writer) error {
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Args:  cobra.NoArgs,
-	Short: "Start a new codemeta.json file. When complete, run \"codemetagenerator generate\" to generate the final codemeta.json file",
-	Long: `This command starts a new codemeta.json file with basic information about your 
-software source code project. It is expected that you will also add authors, 
-contributors, keywords, and other fields to the in-progress codemeta.json, 
-then run:
+	Short: "Start a new codemeta.json file for editing. When complete, run \"codemetagenerator generate\" to generate the resultant 'codemeta.json' file",
+	Long: `
+This command starts a new 'codemeta.json' file with basic information about your 
+software source code project. 
+
+It is expected that you will also add authors, contributors, keywords, and other 
+fields to the in-progress codemeta.json, then run:
 
 codemetagenerator generate
 
-to generate the final codemeta.json file optionally selecting the file 
-destination.`,
+to generate the resultant 'codemeta.json' file, optionally selecting the file destination.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return new(utils.UserHomeDir, &utils.StdinReader{}, &utils.StdoutWriter{})
 	},

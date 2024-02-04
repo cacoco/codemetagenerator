@@ -3,8 +3,11 @@ package cmd
 import (
 	"testing"
 
+	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/onsi/gomega"
 )
+
+var testWriter = &utils.TestWriter{}
 
 func TestDeleteStringValue(t *testing.T) {
 	// initialize gomega
@@ -13,7 +16,7 @@ func TestDeleteStringValue(t *testing.T) {
 	json := `{"key":"value","key2":"value2"}`
 	path := "key2"
 
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Deleting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -27,7 +30,7 @@ func TestDeleteIntValue(t *testing.T) {
 
 	json := `{"key":"value","key2":2}`
 	path := "key2"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -41,7 +44,7 @@ func TestDeleteStructValue(t *testing.T) {
 
 	json := `{"key":"value","key2":{"first":"value3","second":"value4"}}`
 	path := "key2"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -55,7 +58,7 @@ func TestDeleteItemInArrayValue1(t *testing.T) {
 
 	json := `{"key":"value","key2":[1,2,3]}`
 	path := "key2.-1"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -69,7 +72,7 @@ func TestDeleteItemInArrayValue2(t *testing.T) {
 
 	json := `{"key":"value","key2":[1,2,3]}`
 	path := "key2.0"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -83,7 +86,7 @@ func TestDeleteItemInArrayValue3(t *testing.T) {
 
 	json := `{"key":"value","key2":[1,2,3]}`
 	path := "key2.2"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
@@ -97,7 +100,7 @@ func TestDeleteArrayValue(t *testing.T) {
 
 	json := `{"key":"value","key2":[1,2,3]}`
 	path := "key2"
-	result, err := deleteValue([]byte(json), path)
+	result, err := deleteValue(testWriter, []byte(json), path)
 	if err != nil {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}

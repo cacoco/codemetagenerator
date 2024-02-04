@@ -28,23 +28,35 @@ var keywordCmd = &cobra.Command{
 	Use:   "keyword",
 	Args:  cobra.MinimumNArgs(1),
 	Short: "Adds a keyword to the in-progress codemeta.json file",
-	Long: `Add a single keyword to the in-progres codemeta.json file. A keyword can be a 
-person or an organization. Prompts for the information needed to add a keyword 
-and then adds it to the 'keywords' array in the in-progress codemeta.json file. 
-You can add multiple keywords by running this command multiple times. If you 
-need to remove a keyword, run the "remove" command to remove keywords. Run the 
-"edit" command to edit properties of a keyword.
+	Long: `
+Add a single keyword to the in-progress codemeta.json file. 
 
-When complete, run "generate" to generate the final codemeta.json file.`,
+A keyword can be any string value. Prompts for the information needed to add 
+a keyword and then appends it to the 'keywords' array in the in-progress codemeta.json 
+file. 
+
+You can add multiple keywords by either running this command multiple times or passing
+multiple values to the command, e.g.
+
+codemetagenerator add keyword keyword1 keyword2 keyword3
+
+will add three keywords to the in-progress codemeta.json file. If you need to remove a 
+keyword, run the "delete" command to remove keywords. Run the "set" command to edit 
+properties of a keyword.
+
+When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		stdout := &utils.StdoutWriter{}
+
 		inProgressFilePath := utils.GetInProgressFilePath(utils.UserHomeDir)
 
 		codemeta, err := utils.Unmarshal(inProgressFilePath)
 		if err != nil {
+			handleErr(stdout, err)
 			return fmt.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
 		}
 		mutateMap := *codemeta
-		addKeywords(&utils.StdoutWriter{}, mutateMap, args)
+		addKeywords(stdout, mutateMap, args)
 
 		err = utils.Marshal(inProgressFilePath, &mutateMap)
 		if err != nil {

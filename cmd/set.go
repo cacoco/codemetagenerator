@@ -51,8 +51,11 @@ func setValue(jsonBytes []byte, path string, value string) (*string, error) {
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Args:  cobra.ExactArgs(2),
-	Short: "Set the value of an arbitrary key in the in-progress codemeta.json file.",
-	Long: `This expects a path syntax for the key. A path is a series of keys separated by a dot.
+	Short: "Set the value of an arbitrary key in the in-progress codemeta.json file",
+	Long: `
+Set a property by key in the in-progress codemeta.json file. This will insert or edit.
+
+This expects a path syntax for the key. A path is a series of keys separated by a dot.
 For example, using this json:
 {
 	"key1": [

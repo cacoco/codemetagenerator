@@ -47,11 +47,17 @@ func getLicenseReference(basedir string, id string) (*string, error) {
 var licensesCmd = &cobra.Command{
 	Use:   "licenses [refresh]",
 	Args:  cobra.RangeArgs(0, 1),
-	Short: "List (or refresh cached) SPDX license IDs",
-	Long: `Use this command to list license SPDX ids from the https://spdx.org/licenses/. 
+	Short: "List or refresh cached SPDX (https://spdx.org/licenses/) license IDs",
+	Long: `
+Use this command to list license SPDX ids from the https://spdx.org/licenses/. 
+
 This is a long list and as such you may want to pipe the output into "more" or 
-"less" to view it. Pass the "refresh" argument to update the cached list of licenses.`,
+"less" to view it.
+
+Pass the "refresh" argument to update the cached list of licenses.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		writer := &utils.StdoutWriter{}
+
 		if len(args) == 0 {
 			supportedLicenses := SupportedLicenses.getSupportedLicenses()
 			// list licenses
@@ -63,6 +69,7 @@ This is a long list and as such you may want to pipe the output into "more" or
 			// update licenses file
 			err := downloadSPDXLicenses(utils.UserHomeDir, utils.MkHttpClient(), true)
 			if err != nil {
+				handleErr(writer, err)
 				return fmt.Errorf("unable to update SPDX licenses file: %s", err.Error())
 			}
 			fmt.Println("✅ Successfully updated SPDX licenses file.")
