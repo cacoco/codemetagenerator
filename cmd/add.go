@@ -45,10 +45,11 @@ var addCmd = &cobra.Command{
 	ValidArgs: []string{"author", "contributor", "keyword"},
 	Args:      checkArgs,
 	Short:     "Adds resources [authors, contributors, keywords] to the in-progress codemeta.json file",
-	Long: `Use this command to add authors, contributors, keywords, to the in-progress 
+	Long: `
+Use this command to add authors, contributors, keywords, to the in-progress 
 codemeta.json file. You can choose to clear all of the data in a field by 
-running the "remove" command. When you are done adding resources, run 
-"generate" to generate the final codemeta.json file. 
+running the "delete" command. When you are done adding resources, run 
+"generate" to generate the resultant 'codemeta.json' file. 
 
 Note that this command must be run with a resource sub-command like author, contributor or keyword.`,
 	RunE: addCmdRunE,

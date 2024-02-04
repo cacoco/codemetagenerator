@@ -11,6 +11,7 @@ import (
 
 type Writer interface {
 	Stdout() io.WriteCloser
+	StdErr() io.WriteCloser
 	Println(a ...any) (n int, err error)
 	Print(a ...any) (n int, err error)
 	Errorf(format string, a ...any) error
@@ -37,26 +38,31 @@ type (
 	}
 )
 
-func (r *TestWriter) Stdout() io.WriteCloser {
+func (r TestWriter) Stdout() io.WriteCloser {
 	if r.Verbose {
 		return os.Stdout
 	}
 	return &nopWriteCloser{}
 }
-
-func (r *TestWriter) Print(a ...any) (n int, err error) {
+func (r TestWriter) StdErr() io.WriteCloser {
+	if r.Verbose {
+		return os.Stderr
+	}
+	return &nopWriteCloser{}
+}
+func (r TestWriter) Print(a ...any) (n int, err error) {
 	if r.Verbose {
 		fmt.Print(a...)
 	}
 	return 0, nil
 }
-func (r *TestWriter) Println(a ...any) (n int, err error) {
+func (r TestWriter) Println(a ...any) (n int, err error) {
 	if r.Verbose {
 		fmt.Println(a...)
 	}
 	return 0, nil
 }
-func (r *TestWriter) Errorf(format string, a ...any) error {
+func (r TestWriter) Errorf(format string, a ...any) error {
 	return fmt.Errorf(format, a...)
 }
 
@@ -66,16 +72,19 @@ type StdoutWriter struct {
 	Writer
 }
 
-func (*StdoutWriter) Stdout() io.WriteCloser {
+func (StdoutWriter) Stdout() io.WriteCloser {
 	return os.Stdout
 }
-func (s *StdoutWriter) Print(a ...any) (n int, err error) {
+func (StdoutWriter) StdErr() io.WriteCloser {
+	return os.Stderr
+}
+func (s StdoutWriter) Print(a ...any) (n int, err error) {
 	return fmt.Fprint(s.Stdout(), a...)
 }
-func (s *StdoutWriter) Println(a ...any) (n int, err error) {
+func (s StdoutWriter) Println(a ...any) (n int, err error) {
 	return fmt.Fprintln(s.Stdout(), a...)
 }
-func (s *StdoutWriter) Errorf(format string, a ...any) error {
+func (s StdoutWriter) Errorf(format string, a ...any) error {
 	return fmt.Errorf(format, a...)
 }
 

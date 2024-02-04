@@ -9,22 +9,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func delete(basedir string, args []string) error {
+func delete(writer utils.Writer, basedir string, args []string) error {
 	path := args[0]
 
 	bytes, err := utils.LoadFile(utils.GetInProgressFilePath(basedir))
 	if err != nil {
-		return fmt.Errorf("unable to load the in-progress codemeta.json file: %s", err.Error())
+		handleErr(writer, err)
+		return fmt.Errorf("unable to load the in-progress codemeta.json file")
 	}
 
-	result, err := deleteValue(bytes, path)
+	result, err := deleteValue(writer, bytes, path)
 	if err != nil {
 		return err
 	}
 	return os.WriteFile(utils.GetInProgressFilePath(basedir), []byte(*result), 0644)
 }
 
-func deleteValue(jsonBytes []byte, path string) (*string, error) {
+func deleteValue(writer utils.Writer, jsonBytes []byte, path string) (*string, error) {
 	if len(path) == 0 {
 		return nil, fmt.Errorf("path is empty")
 	}
@@ -32,7 +33,8 @@ func deleteValue(jsonBytes []byte, path string) (*string, error) {
 	json := string(jsonBytes)
 	result, err := internal.Delete(json, path)
 	if err != nil {
-		return nil, fmt.Errorf("unable to delete the property with path, `%s` in the in-progress codemeta.json file: %s", path, err.Error())
+		handleErr(writer, err)
+		return nil, fmt.Errorf("unable to delete the property with path, `%s` in the in-progress codemeta.json file", path)
 	}
 	return &result, nil
 }
@@ -41,9 +43,12 @@ func deleteValue(jsonBytes []byte, path string) (*string, error) {
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Args:  cobra.ExactArgs(1),
-	Short: "Delete an arbitrary key and its value from the in-progress codemeta.json file.",
-	Long: `This expects a path syntax for the key. A path is a series of keys separated by a dot.
-	For example, using this json:
+	Short: "Delete an arbitrary key and its value from the in-progress codemeta.json file",
+	Long: `
+Delete a property by key in the in-progress codemeta.json file.
+
+This expects a path syntax for the key. A path is a series of keys separated by a dot.
+For example, using this json:
 	{
 		"key1": [
 				{"first": 2, "second": 3},
@@ -74,7 +79,7 @@ var deleteCmd = &cobra.Command{
 "key3.-1"  => deletes the last element of the "key3" array, ("two").
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return delete(utils.UserHomeDir, args)
+		return delete(&utils.StdoutWriter{}, utils.UserHomeDir, args)
 	},
 }
 
