@@ -20,6 +20,14 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Set up Git Config
+        run: |
+          git config user.name "goreleaserbot"
+          git config user.email "<bot@goreleaser.com>"
+      - name: Install jj
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        with: # Grab the latest version
+          repo: tidwall/jj
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
@@ -30,3 +38,9 @@ jobs:
           # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Update codemeta.json version
+        if: ${{ success() }}
+        run: |
+          jj -i codemeta.json -v 0.47.3 version -o codemeta.json
+          git commit -am "Update codemeta.json version"
+          git push origin main
