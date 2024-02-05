@@ -23,23 +23,11 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean
-        env:
-          # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
-          GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Set up Git Config
-        if: ${{ success() }}
         run: |
           git config user.name "goreleaserbot"
           git config user.email "<bot@goreleaser.com>"
       - name: Update codemeta.json version
-        if: ${{ success() }}
         run: |
           git branch ${{ github.ref_name }}-branch
           git checkout ${{ github.ref_name }}-branch
@@ -51,3 +39,14 @@ jobs:
           git push origin ${{ github.ref_name }}
           git checkout ${{ github.ref_name }}
           git branch -D ${{ github.ref_name }}-branch
+      - name: Run GoReleaser
+        if: ${{ success() }}
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
