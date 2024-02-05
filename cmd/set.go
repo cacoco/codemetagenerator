@@ -38,7 +38,8 @@ func setValue(jsonBytes []byte, path string, value string) (*string, error) {
 	var val any
 	err := oj.Unmarshal([]byte(value), &val)
 	if err != nil {
-		return nil, fmt.Errorf("unable to set the value of the property with path, `%s` in the in-progress codemeta.json file: %s", path, err.Error())
+		// just treat as a string
+		val = value
 	}
 	result, err := internal.Set(json, path, val)
 	if err != nil {
