@@ -29,10 +29,13 @@ jobs:
           git config user.email "<bot@goreleaser.com>"
       - name: Update codemeta.json version
         run: |
+          TAG="${{ github.ref_name }}"
+          VER="${TAG#v}""
           git branch ${{ github.ref_name }}-branch
           git checkout ${{ github.ref_name }}-branch
-          echo "`jq '.version="${{ github.ref_name }}"' codemeta.json`" > codemeta.json
+          echo $(jq ".version=\"$VER\"" codemeta.json) > codemeta.json
           git commit -am "Update codemeta.json version"
+          git push origin ${{ github.ref_name }}-branch # create a branch with the new version for PR on main
           git tag -d ${{ github.ref_name }}
           git tag ${{ github.ref_name }}
           git push --delete origin ${{ github.ref_name }}
