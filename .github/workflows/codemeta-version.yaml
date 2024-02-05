@@ -17,10 +17,18 @@ jobs:
         run: |
           tag="${{ github.ref_name }}"
           echo "release-version=${tag#v}" >> $GITHUB_ENV
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
       - name: Set up Git Config
         run: |
-          git config user.name "goreleaserbot"
-          git config user.email "<bot@goreleaser.com>"
+          git config user.name "Christopher Coco"
+          git config user.email "<christopher@angstrom.io>"
       - name: Update codemeta.json version in main branch
         uses: jossef/action-set-json-field@v2.1
         with:
