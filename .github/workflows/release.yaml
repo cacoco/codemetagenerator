@@ -23,28 +23,34 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Get release version from tag
+        run: |
+          tag="${{ github.ref_name }}"
+          echo "release_version=${tag#v}" >> $GITHUB_ENV
+      - name: Update codemeta.json version
+        uses: jossef/action-set-json-field@v2.1
+        with:
+          file: codemeta.json
+          field: version
+          value: "${{ env.release_version }}"
       - name: Set up Git Config
         run: |
           git config user.name "goreleaserbot"
           git config user.email "<bot@goreleaser.com>"
       - name: Update codemeta.json version in tag
         run: |
-          # updates the codemeta.json file with the tag release version
-          TAG="${{ github.ref_name }}"
-          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
-          
+          # save the codemeta.json file changes to the current tag
           git branch ${{ github.ref_name }}-branch
           git checkout ${{ github.ref_name }}-branch
-          
-          echo "`jq '.version="${{ env.VERSION }}"' codemeta.json`" > codemeta.json
+          # commit changes
           git commit -am "[release] Update codemeta.json version"
-          
+          # delete and recreate tag with the above commit
           git tag -d ${{ github.ref_name }}
           git tag ${{ github.ref_name }}
-          
+          # push the recreated tag to origin
           git push --delete origin ${{ github.ref_name }}
           git push origin ${{ github.ref_name }}
-          
+          # delete the temporary branch
           git checkout ${{ github.ref_name }}
           git branch -D ${{ github.ref_name }}-branch
       - name: Run GoReleaser
@@ -63,4 +69,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run codemeta-version.yaml --field release_version=${{ env.VERSION }} --ref main
+          gh workflow run codemeta-version.yaml --field release_version=${{ env.release_version }} --ref main

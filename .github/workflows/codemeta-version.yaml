@@ -21,10 +21,13 @@ jobs:
           run: |
             git config user.name "goreleaserbot"
             git config user.email "<bot@goreleaser.com>"
+        - name: Update codemeta.json version in main branch
+          uses: jossef/action-set-json-field@v2.1
+          with:
+            file: codemeta.json
+            field: version
+            value: "${{ inputs.release_version }}"
         - name: Update codemeta.json
           run: |
-            # Update the codemeta.json file in main branch with the latest version
-            git checkout main
-            echo "`jq '.version="${{ inputs.release_version }}"' codemeta.json`" > codemeta.json
             git commit -am "[release] Update codemeta.json version to ${{ inputs.release_version }}"
             git push origin main
