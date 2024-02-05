@@ -1,16 +1,11 @@
 {
-  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@context": "https://w3id.org/codemeta/3.0",
   "@type": "SoftwareSourceCode",
   "codeRepository": "https://github.com/cacoco/codemetagenerator",
   "description": "Interactive generator to create a CodeMeta SoftwareSourceCode description.",
   "developmentStatus": "Active",
   "identifier": "codemetagenerator",
-  "keywords": [
-    "codemeta",
-    "codemeta-generator",
-    "go",
-    "golang"
-  ],
+  "keywords": ["codemeta", "codemeta-generator", "go", "golang"],
   "license": "https://spdx.org/licenses/Apache-2.0.html",
   "maintainer": {
     "@id": "https://orcid.org/0009-0002-8232-1782",
@@ -27,5 +22,6 @@
   },
   "readme": "https://github.com/cacoco/codemetagenerator/blob/main/README.md",
   "runtimePlatform": "go version go1.21.6",
-  "version": "0.47.2"
+  "version": "0.47.3",
+  "url": "https://angstrom.io/codemetagenerator"
 }

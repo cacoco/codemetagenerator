@@ -105,7 +105,19 @@ The syntax follows the `sjson` ([https://github.com/tidwall/sjson](https://githu
 
 
 ## CodeMeta
-[CodeMeta](https://codemeta.github.io) is a [JSON-LD](https://json-ld.org/) file format used to describe software projects. See a [full example](https://github.com/ropensci/codemetar/blob/main/codemeta.json).
+[CodeMeta](https://codemeta.github.io) is a [JSON-LD](https://json-ld.org/) file format used to describe software projects.
+
+### CodeMeta Metadata Usage
+
+A CodeMeta instance file describes the metadata of a software object using [JSON-LD](https://json-ld.org/) notation. An instance file is typically located at the root of your repository and can contain any of the properties described on the [CodeMeta terms page](https://codemeta.github.io/terms/). The instance file is generally named, `codemeta.json`.
+
+JSON-LD uses a [context](https://niem.github.io/json/reference/json-ld/context/) file to associate JSON names with IRIs ([Internationalized Resource Identifier](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier)). The JSON names then serve as abbreviated, local names for the IRIs that are universally unique identifiers for concepts from widely used schemas such as [schema.org](https://schema.org/). 
+
+The context file [codemeta.jsonld](https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld) contains the complete set of JSON properties adopted by the CodeMeta project.
+
+### Example
+
+A full example can be seen in the [ropensci/codemeter](https://github.com/ropensci/codemetar) GitHub project page: [https://github.com/ropensci/codemetar/blob/main/codemeta.json](https://github.com/ropensci/codemetar/blob/main/codemeta.json).
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
