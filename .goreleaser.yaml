@@ -8,6 +8,8 @@
 
 version: 1
 
+project_name: codemetagenerator
+
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -22,6 +24,19 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - 7
+    goamd64:
+      - v3
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+universal_binaries:
+  - replace: true
+    mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
   - format: tar.gz
@@ -38,9 +53,60 @@ archives:
       - goos: windows
         format: zip
 
+sboms:
+  - artifacts: archive
+
+signs:
+  - artifacts: checksum
+    cmd: gpg2
+    args:
+      - "--batch"
+      - "-u"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
+
 changelog:
   sort: asc
   filters:
     exclude:
       - "^docs:"
       - "^test:"
+
+release:
+  github:
+    owner: cacoco
+    name: codemetagenerator
+  mode: replace
+
+brews:
+  # Brew formulas support only one 32-bit version.
+  - goarm: 7
+    # GOAMD64 to specify which amd64 version to use if there are multiple
+    # versions from the build section.
+    goamd64: v3
+    url_template: "https://github.com/cacoco/codemetagenerator/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    # Allows you to set a custom download strategy. Note that you'll need
+    # to implement the strategy and add it to your tap repository.
+    # Example: https://docs.brew.sh/Formula-Cookbook#specifying-the-download-strategy-explicitly
+    download_strategy: CurlDownloadStrategy
+    # Git author used to commit to the repository.
+    commit_author:
+        name: goreleaserbot
+        email: bot@goreleaser.com
+    # The project name and current git tag are used in the format string.
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    # Folder inside the repository to put the formula.
+    folder: Formula
+    homepage: "https://angstrom.io/codemetagenerator"
+    description: "A CodeMeta project description generator written in Go."
+    license: "Apache-2.0"
+    repository:
+        # Repository owner.
+        owner: cacoco
+        # Repository name.
+        name: homebrew-tap
+        # Optionally a branch can be provided.
+        branch: main
