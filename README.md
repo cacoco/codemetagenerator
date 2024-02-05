@@ -1,4 +1,7 @@
 # codemetagenerator
+
+[![GitHub](https://img.shields.io/github/license/cacoco/codemetagenerator)](https://github.com/cacoco/codemetagenerator/blob/main/LICENSE) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![go ci build](https://github.com/cacoco/codemetagenerator/actions/workflows/ci.yaml/badge.svg)](https://github.com/cacoco/codemetagenerator/actions/workflows/ci.yaml) [![GitHub Release](https://img.shields.io/github/release/cacoco/codemetagenerator?style=flat)](https://github.com/cacoco/codemetagenerator/releases/tag/v0.47.2)
+
 This project is a [CodeMeta](https://codemeta.github.io/) project description generator written in [Go](https://go.dev/).
 
 ## Installation
