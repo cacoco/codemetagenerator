@@ -2,6 +2,8 @@
 This project is a [CodeMeta](https://codemeta.github.io/) project description generator written in [Go](https://go.dev/).
 
 ## Installation
+
+### Manually
 To install this project, you need to have [Go](https://go.dev/) installed on your machine. Once you have Go installed, you can clone this repository and build the project.
 
 ```bash
@@ -11,6 +13,13 @@ go build
 ```
 
 Then install via `go install`
+
+### Via [Homebrew](https://brew.sh/)
+
+```bash
+brew tap cacoco/tap
+brew install codemetagenerator
+```
 
 ## Usage
 To run this project, you can use the following commands:
