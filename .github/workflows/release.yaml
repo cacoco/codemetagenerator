@@ -9,7 +9,10 @@ jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
@@ -20,7 +23,24 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Set up Git Config
+        run: |
+          git config user.name "goreleaserbot"
+          git config user.email "<bot@goreleaser.com>"
+      - name: Update codemeta.json version
+        run: |
+          git branch ${{ github.ref_name }}-branch
+          git checkout ${{ github.ref_name }}-branch
+          echo "`jq '.version="${{ github.ref_name }}"' codemeta.json`" > codemeta.json
+          git commit -am "Update codemeta.json version"
+          git tag -d ${{ github.ref_name }}
+          git tag ${{ github.ref_name }}
+          git push --delete origin ${{ github.ref_name }}
+          git push origin ${{ github.ref_name }}
+          git checkout ${{ github.ref_name }}
+          git branch -D ${{ github.ref_name }}-branch
       - name: Run GoReleaser
+        if: ${{ success() }}
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
@@ -30,15 +50,3 @@ jobs:
           # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Set up Git Config
-        if: ${{ success() }}
-        run: |
-          git config user.name "goreleaserbot"
-          git config user.email "<bot@goreleaser.com>"
-      - name: Update codemeta.json version
-        if: ${{ success() }}
-        run: |
-          git checkout main
-          echo "`jq '.version="${{ github.ref_name }}"' codemeta.json`" > codemeta.json
-          git commit -am "Update codemeta.json version"
-          git push origin main
