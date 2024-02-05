@@ -72,8 +72,8 @@ jobs:
       #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
   call-codemeta-version:
     needs: goreleaser
-    if: always() && !contains(needs.*.result, 'failure')
-    uses: ./.github/workflows/codemeta-version.yaml
-    with:
-      release-version: ${{ needs.goreleaser.outputs.release-version }}
-    secrets: inherit    
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/codemeta-version.yaml
+        with:
+          release-version: ${{ needs.goreleaser.outputs.release-version }}
