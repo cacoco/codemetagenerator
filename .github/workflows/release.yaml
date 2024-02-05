@@ -59,5 +59,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Run Update CodeMeta JSON file action
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh workflow run codemeta-version.yaml --field release_version=${{ env.VERSION }} --ref main
