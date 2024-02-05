@@ -29,6 +29,6 @@ jobs:
           value: "${{ env.release-version }}"
       - name: Commit updated codemeta.json file
         run: |
-          git switch -c update-codemeta-version
+          git checkout main
           git commit -am "[release] Update codemeta.json version to ${{ inputs.release-version }}"
-          git push origin update-codemeta-version
+          git push origin main

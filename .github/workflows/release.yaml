@@ -53,15 +53,15 @@ jobs:
           # delete the temporary branch
           git checkout ${{ github.ref_name }}
           git branch -D ${{ github.ref_name }}-branch
-      # - name: Run GoReleaser
-      #   uses: goreleaser/goreleaser-action@v5
-      #   with:
-      #     distribution: goreleaser
-      #     version: latest
-      #     args: release --clean
-      #   env:
-      #     # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
-      #     GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
-      #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
   call-codemeta-version:
     uses: ./.github/workflows/codemeta-version.yaml
