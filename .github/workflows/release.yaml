@@ -71,9 +71,8 @@ jobs:
       #     GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
       #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
   call-codemeta-version:
-    needs: goreleaser
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/codemeta-version.yaml
-        with:
-          release-version: ${{ needs.goreleaser.outputs.release-version }}
+    needs: [goreleaser]
+    uses: ./.github/workflows/codemeta-version.yaml
+    with:
+      release-version: ${{ needs.goreleaser.outputs.release-version }}
+    secrets: inherit
