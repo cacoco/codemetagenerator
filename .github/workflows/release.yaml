@@ -8,8 +8,6 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
-    outputs:
-      release-version: ${{ steps.get_release_version.outputs.release-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,13 +63,5 @@ jobs:
       #     # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
       #     GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
       #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: get_release_version -- saves to github output context
-        run: |
-          tag="${{ github.ref_name }}"
-          echo "release-version=${tag#v}" >> $GITHUB_OUTPUT
   call-codemeta-version:
-    needs: [goreleaser]
     uses: ./.github/workflows/codemeta-version.yaml
-    with:
-      release-version: ${{ needs.goreleaser.outputs.release-version }}
-    secrets: inherit
