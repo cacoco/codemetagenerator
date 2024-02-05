@@ -28,6 +28,7 @@ jobs:
         uses: jaxxstorm/action-install-gh-release@v1.10.0
         with: # Grab the latest version
           repo: tidwall/jj
+          arch: amd64
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
