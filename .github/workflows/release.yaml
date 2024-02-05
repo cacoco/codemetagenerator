@@ -27,19 +27,24 @@ jobs:
         run: |
           git config user.name "goreleaserbot"
           git config user.email "<bot@goreleaser.com>"
-      - name: Update codemeta.json version
+      - name: Update codemeta.json version in tag
         run: |
+          # updates the codemeta.json file with the tag release version
           TAG="${{ github.ref_name }}"
-          VER="${TAG#v}""
+          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+          
           git branch ${{ github.ref_name }}-branch
           git checkout ${{ github.ref_name }}-branch
-          echo $(jq ".version=\"$VER\"" codemeta.json) > codemeta.json
-          git commit -am "Update codemeta.json version"
-          git push origin ${{ github.ref_name }}-branch # create a branch with the new version for PR on main
+          
+          echo "`jq '.version="${{ env.VERSION }}"' codemeta.json`" > codemeta.json
+          git commit -am "[release] Update codemeta.json version"
+          
           git tag -d ${{ github.ref_name }}
           git tag ${{ github.ref_name }}
+          
           git push --delete origin ${{ github.ref_name }}
           git push origin ${{ github.ref_name }}
+          
           git checkout ${{ github.ref_name }}
           git branch -D ${{ github.ref_name }}-branch
       - name: Run GoReleaser
@@ -53,3 +58,6 @@ jobs:
           # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Run Update CodeMeta JSON file action
+        run: |
+          gh workflow run codemeta-version.yaml --field release_version=${{ env.VERSION }} --ref main

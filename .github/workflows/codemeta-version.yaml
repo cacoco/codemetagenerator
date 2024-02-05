@@ -1,0 +1,30 @@
+name: codemeta-update
+defaults:
+    run:
+      shell: bash
+"on":
+    workflow_dispatch:
+        inputs:
+            release_version:
+                description: The released version to write into the codemeta.json file
+                required: true
+                type: string
+permissions:
+    contents: write
+jobs:
+    update:
+        runs-on: ubuntu-latest
+        if: ${{ inputs.release_version }}
+        steps:
+        - uses: actions/checkout@v4
+        - name: Set up Git Config
+          run: |
+            git config user.name "goreleaserbot"
+            git config user.email "<bot@goreleaser.com>"
+        - name: Update codemeta.json
+          run: |
+            # Update the codemeta.json file in main branch with the latest version
+            git checkout main
+            echo "`jq '.version="${{ inputs.release_version }}"' codemeta.json`" > codemeta.json
+            git commit -am "[release] Update codemeta.json version to ${{ inputs.release_version }}"
+            git push origin main
