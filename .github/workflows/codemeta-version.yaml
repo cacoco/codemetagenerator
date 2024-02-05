@@ -4,22 +4,19 @@ defaults:
     shell: bash
 "on":
   workflow_call:
-    inputs:
-      release-version:
-        description: The released version to write into the codemeta.json file
-        required: true
-        type: string
 permissions:
   contents: write
 jobs:
   update:
       runs-on: ubuntu-latest
-      if: ${{ inputs.release-version }}
       steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
+      - name: Get release version from tag -- saves to current environment context
+        run: |
+          tag="${{ github.ref_name }}"
+          echo "release-version=${tag#v}" >> $GITHUB_ENV
       - name: Set up Git Config
         run: |
           git config user.name "goreleaserbot"
@@ -29,8 +26,9 @@ jobs:
         with:
           file: codemeta.json
           field: version
-          value: "${{ inputs.release-version }}"
+          value: "${{ env.release-version }}"
       - name: Commit updated codemeta.json file
         run: |
+          git switch -c update-codemeta-version
           git commit -am "[release] Update codemeta.json version to ${{ inputs.release-version }}"
-          git push origin main
+          git push origin update-codemeta-version
