@@ -23,7 +23,7 @@ func compare(g *gomega.WithT, actual string, expected string) error {
 	return nil
 }
 
-func TestSetStringValue(t *testing.T) {
+func TestSetStringValue1(t *testing.T) {
 	// initialize gomega
 	g := gomega.NewWithT(t)
 
@@ -34,6 +34,20 @@ func TestSetStringValue(t *testing.T) {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
 	expected := `{"key":"value","key2":"value2"}`
+	compare(g, *result, expected)
+}
+
+func TestSetStringValue2(t *testing.T) {
+	// initialize gomega
+	g := gomega.NewWithT(t)
+
+	json := `{"key": "value"}`
+	path := "key2"
+	result, err := setValue([]byte(json), path, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+	if err != nil {
+		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
+	}
+	expected := `{"key":"value","key2":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}`
 	compare(g, *result, expected)
 }
 
@@ -65,7 +79,7 @@ func TestSetStructValue(t *testing.T) {
 	compare(g, *result, expected)
 }
 
-func TestSetArrayValue(t *testing.T) {
+func TestSetArrayValue1(t *testing.T) {
 	// initialize gomega
 	g := gomega.NewWithT(t)
 
@@ -76,6 +90,20 @@ func TestSetArrayValue(t *testing.T) {
 		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
 	}
 	expected := `{"key":"value","key2":[1,2,3]}`
+	compare(g, *result, expected)
+}
+
+func TestSetArrayValue2(t *testing.T) {
+	// initialize gomega
+	g := gomega.NewWithT(t)
+
+	json := `{"key": "value"}`
+	path := "key2"
+	result, err := setValue([]byte(json), path, `["1", "2", "3"]`)
+	if err != nil {
+		t.Errorf("Setting property with path `%s` returned unexpected error: %v", path, err)
+	}
+	expected := `{"key":"value","key2":["1","2","3"]}`
 	compare(g, *result, expected)
 }
 

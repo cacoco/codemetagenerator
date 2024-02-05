@@ -78,6 +78,14 @@ release:
     name: codemetagenerator
   mode: replace
 
+milestones:
+  -
+    # Whether to close the milestone
+    close: true
+
+    # Fail release on errors, such as missing milestone.
+    fail_on_error: false
+
 brews:
   # Brew formulas support only one 32-bit version.
   - goarm: 7
