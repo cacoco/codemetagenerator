@@ -38,6 +38,7 @@ jobs:
       - name: Update codemeta.json version
         if: ${{ success() }}
         run: |
+          git checkout main
           echo "`jq '.version="${{ github.ref_name }}"' codemeta.json`" > codemeta.json
           git commit -am "Update codemeta.json version"
           git push origin main
