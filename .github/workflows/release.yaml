@@ -71,8 +71,7 @@ jobs:
       #     GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
       #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
   call-codemeta-version:
-    permissions:
-      contents: write
+    needs: [goreleaser]
     uses: ./.github/workflows/codemeta-version.yaml
     with:
       release-version: ${{ needs.goreleaser.outputs.release-version }}
