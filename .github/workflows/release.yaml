@@ -23,10 +23,10 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
