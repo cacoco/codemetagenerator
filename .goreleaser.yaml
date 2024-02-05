@@ -53,9 +53,6 @@ archives:
       - goos: windows
         format: zip
 
-sboms:
-  - artifacts: archive
-
 signs:
   - artifacts: checksum
     cmd: gpg2
