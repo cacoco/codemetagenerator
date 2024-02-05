@@ -8,6 +8,8 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    outputs:
+      release-version: ${{ steps.get_release_version.outputs.release-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,21 +25,25 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Get release version from tag
+      - name: Get release version from tag -- saves to current environment context
         run: |
           tag="${{ github.ref_name }}"
-          echo "release_version=${tag#v}" >> $GITHUB_ENV
+          echo "release-version=${tag#v}" >> $GITHUB_ENV
+      - name: get_release_version -- saves to github output context
+        run: |
+          tag="${{ github.ref_name }}"
+          echo "release-version=${tag#v}" >> $GITHUB_OUTPUT
       - name: Update codemeta.json version
         uses: jossef/action-set-json-field@v2.1
         with:
           file: codemeta.json
           field: version
-          value: "${{ env.release_version }}"
+          value: "${{ env.release-version }}"
       - name: Set up Git Config
         run: |
           git config user.name "goreleaserbot"
           git config user.email "<bot@goreleaser.com>"
-      - name: Update codemeta.json version in tag
+      - name: Commit updated codemeta.json file in the current tag
         run: |
           # save the codemeta.json file changes to the current tag
           git branch ${{ github.ref_name }}-branch
@@ -64,9 +70,9 @@ jobs:
           # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Run Update CodeMeta JSON file action
-        if: ${{ success() }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run codemeta-version.yaml --field release_version=${{ env.release_version }} --ref main
+  call-codemeta-version:
+    needs: goreleaser
+    uses: cacoco/codemetagenerator/.github/workflows/codemeta-version.yaml@main
+    with:
+      release-version: ${{ needs.goreleaser.outputs.release-version }}
+    secrets: inherit    
