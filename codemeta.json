@@ -5,7 +5,12 @@
   "description": "Interactive generator to create a CodeMeta SoftwareSourceCode description.",
   "developmentStatus": "Active",
   "identifier": "codemetagenerator",
-  "keywords": ["codemeta", "codemeta-generator", "go", "golang"],
+  "keywords": [
+    "codemeta",
+    "codemeta-generator",
+    "go",
+    "golang"
+  ],
   "license": "https://spdx.org/licenses/Apache-2.0.html",
   "maintainer": {
     "@id": "https://orcid.org/0009-0002-8232-1782",
@@ -22,6 +27,6 @@
   },
   "readme": "https://github.com/cacoco/codemetagenerator/blob/main/README.md",
   "runtimePlatform": "go version go1.21.6",
-  "version": "0.47.7",
+  "version": "0.47.5",
   "url": "https://angstrom.io/codemetagenerator"
 }
