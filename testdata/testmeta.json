@@ -1,0 +1,7 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "@type": "SoftwareSourceCode",
+    "identifier": "testmeta",
+    "description": "A test codemeta.json file.",
+    "name": "TestMeta"
+}

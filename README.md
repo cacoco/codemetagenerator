@@ -52,7 +52,10 @@ codemetagenerator new
 ```
 
 This will walk you through an interactive session and will store an "in-progress" `codemeta.json` file. The expectation is that
-you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`.
+you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`. 
+
+Optionally, the `--input` (or `-i`) can be passed with a path to a file to load as the new in-progress `codemeta.json` file. This 
+allows for editing and updating an existing file which you can then choose to generate back into the original location.
 
 #### Add
 Add helps with the addition of 3 specific fields: `author`, `contributor`, or `keyword`. The command provides a wizard for adding these values. 

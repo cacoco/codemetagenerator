@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func generate(basedir string, writer utils.Writer, outputPath string) error {
+func generate(basedir string, writer utils.Writer, outFile string) error {
 	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 
 	json, err := utils.ReadJSON(inProgressFilePath)
@@ -14,11 +14,11 @@ func generate(basedir string, writer utils.Writer, outputPath string) error {
 		return writer.Errorf("unable to read codemeta.inprogress.json file, ensure you have run `codemetagenerator new` at least once")
 	}
 
-	if outputPath != "" {
-		err = utils.WriteJSON(outputPath, *json)
+	if outFile != "" {
+		err = utils.WriteJSON(outFile, *json)
 		if err != nil {
 			handleErr(writer, err)
-			return writer.Errorf("unable to write codemeta.json file to output file %s", outputPath)
+			return writer.Errorf("unable to write codemeta.json file to output file %s", outFile)
 		}
 	} else {
 		writer.Println(*json)
@@ -27,7 +27,7 @@ func generate(basedir string, writer utils.Writer, outputPath string) error {
 	return nil
 }
 
-var codeMetaFilePath string
+var outputFile string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -40,12 +40,12 @@ Generate the resultant 'codemeta.json' file from the in-progress file.
 Output can be written to a file [-o | --output  <path/to/codemeta.json>] or 
 printed to the console.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return generate(utils.UserHomeDir, &utils.StdoutWriter{}, codeMetaFilePath)
+		return generate(utils.UserHomeDir, &utils.StdoutWriter{}, outputFile)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	generateCmd.Flags().StringVarP(&codeMetaFilePath, "output", "o", "", "The path to the output 'codemeta.json' file. If not specified, the output will be printed to the console.")
+	generateCmd.Flags().StringVarP(&outputFile, "output", "o", "", "The path to the output 'codemeta.json' file. If not specified, the output will be printed to the console.")
 }

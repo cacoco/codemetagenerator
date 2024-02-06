@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/mail"
 	"net/url"
+	"strings"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
 	"github.com/manifoldco/promptui"
@@ -50,7 +51,6 @@ func MkPrompt(stdin *io.ReadCloser, stdout *io.WriteCloser, text string, validat
 		return nil, err
 	}
 
-	fmt.Fprint(*stdout, result)
 	return &result, nil
 }
 
@@ -66,7 +66,7 @@ func NewPersonOrOrganizationPrompt(reader *Reader, writer *Writer, label string)
 		Label:    "{{ . }}",
 		Active:   "➞ {{ .Name | cyan }}",
 		Inactive: "  {{ .Name | cyan }}",
-		Selected: "{{ .Name | red | cyan }}",
+		Selected: fmt.Sprintf(`{{ "Selected %s type:" | faint}} {{ .Name | faint }}`, strings.ToLower(label)),
 		Details: fmt.Sprintf(`--------- %s ----------
 {{ "Name:" | faint }}	{{ .Name }}`, label),
 	}
