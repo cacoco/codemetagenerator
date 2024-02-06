@@ -59,7 +59,7 @@ jobs:
         run: |
           tag="${{ github.ref_name }}"
           echo "release-version=${tag#v}" >> $GITHUB_ENV
-      - name: Update codemeta.json version in main branch
+      - name: Update codemeta.json version in tag
         uses: jossef/action-set-json-field@v2.1
         with:
           file: codemeta.json
