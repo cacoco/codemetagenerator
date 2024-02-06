@@ -19,6 +19,12 @@ jobs:
         run: |
           tag="${{ github.ref_name }}"
           echo "release-version=${tag#v}" >> $GITHUB_ENV
+      - name: Update codemeta.json version in main branch
+        uses: jossef/action-set-json-field@v2.1
+        with:
+          file: codemeta.json
+          field: version
+          value: "${{ env.release-version }}"
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
