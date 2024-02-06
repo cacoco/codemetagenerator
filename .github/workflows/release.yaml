@@ -1,49 +1,74 @@
-name: goreleaser
+name: release
 "on":
   push:
     tags:
       - "*"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
-  goreleaser:
+  codemeta-update-main:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: 'go.mod'
+          fetch-depth: 0 # allows us to access all refs
+      - name: Get release version from current tag
+        run: |
+          tag="${{ github.ref_name }}"
+          echo "release-version=${tag#v}" >> $GITHUB_ENV
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Get release version from tag -- saves to current environment context
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+      - name: Set up Git Config
+        run: |
+          git config user.name "Christopher Coco"
+          git config user.email "<christopher@angstrom.io>"
+      - name: Commit updated codemeta.json file on main branch
+        run: |
+          git checkout main
+          git commit -am "[release] Update codemeta.json version to ${{ env.release-version }}"
+          git push origin main
+  codemeta-update-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+      - name: Set up Git Config
+        run: |
+          git config user.name "Christopher Coco"
+          git config user.email "<christopher@angstrom.io>"
+      - name: Get release version from current tag
         run: |
           tag="${{ github.ref_name }}"
           echo "release-version=${tag#v}" >> $GITHUB_ENV
-      - name: Update codemeta.json version
+      - name: Update codemeta.json version in main branch
         uses: jossef/action-set-json-field@v2.1
         with:
           file: codemeta.json
           field: version
           value: "${{ env.release-version }}"
-      - name: Set up Git Config
-        run: |
-          git config user.name "goreleaserbot"
-          git config user.email "<bot@goreleaser.com>"
-      - name: Commit updated codemeta.json file in the current tag
+      - name: Commit updated codemeta.json file on current tag
         run: |
           # save the codemeta.json file changes to the current tag
           git branch ${{ github.ref_name }}-branch
           git checkout ${{ github.ref_name }}-branch
           # commit changes
-          git commit -am "[release] Update codemeta.json version"
+          git commit -am "[release] Update codemeta.json version to ${{ env.release-version }}"
           # delete and recreate tag with the above commit
           git tag -d ${{ github.ref_name }}
           git tag ${{ github.ref_name }}
@@ -53,6 +78,22 @@ jobs:
           # delete the temporary branch
           git checkout ${{ github.ref_name }}
           git branch -D ${{ github.ref_name }}-branch
+  goreleaser:
+    runs-on: ubuntu-latest
+    needs: [codemeta-update-tag]
+    if: ${{ always() && needs.*.result != 'failure' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
@@ -63,5 +104,3 @@ jobs:
           # need to push to cacoco/homebrew-tap; use CACOCO_TOKEN instead of default GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.CACOCO_TOKEN }} 
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-  call-codemeta-version:
-    uses: ./.github/workflows/codemeta-version.yaml
