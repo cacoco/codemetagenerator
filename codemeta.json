@@ -27,6 +27,6 @@
   },
   "readme": "https://github.com/cacoco/codemetagenerator/blob/main/README.md",
   "runtimePlatform": "go version go1.21.6",
-  "version": "0.47.5",
+  "version": "0.47.6",
   "url": "https://angstrom.io/codemetagenerator"
 }
