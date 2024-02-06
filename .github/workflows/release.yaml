@@ -31,12 +31,10 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+          git_committer_name: ${{ secrets.GIT_COMMITTER_NAME }}
+          git_committer_email: ${{ secrets.GIT_COMMITTER_EMAIL }}
           git_user_signingkey: true
-          git_commit_gpgsign: true
-      - name: Set up Git Config
-        run: |
-          git config user.name "Christopher Coco"
-          git config user.email "<christopher@angstrom.io>"
+          git_commit_gpgsign: true      
       - name: Commit updated codemeta.json file on main branch
         run: |
           git checkout main
@@ -53,17 +51,15 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+          git_committer_name: ${{ secrets.GIT_COMMITTER_NAME }}
+          git_committer_email: ${{ secrets.GIT_COMMITTER_EMAIL }}
           git_user_signingkey: true
           git_commit_gpgsign: true
-      - name: Set up Git Config
-        run: |
-          git config user.name "Christopher Coco"
-          git config user.email "<christopher@angstrom.io>"
       - name: Get release version from current tag
         run: |
           tag="${{ github.ref_name }}"
           echo "release-version=${tag#v}" >> $GITHUB_ENV
-      - name: Update codemeta.json version in main branch
+      - name: Update codemeta.json version in tag
         uses: jossef/action-set-json-field@v2.1
         with:
           file: codemeta.json
