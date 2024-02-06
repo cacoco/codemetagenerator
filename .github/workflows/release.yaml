@@ -25,17 +25,14 @@ jobs:
           file: codemeta.json
           field: version
           value: "${{ env.release-version }}"
-      - name: Set up Git Config
-        run: |
-          git config user.name "Christopher Coco"
-          git config user.email "<christopher@angstrom.io>"
-          git config commit.gpgsign true
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+          git_committer_name: ${{ secrets.GIT_COMMITTER_NAME }}
+          git_committer_email: ${{ secrets.GIT_COMMITTER_EMAIL }}
           git_user_signingkey: true
           git_commit_gpgsign: true      
       - name: Commit updated codemeta.json file on main branch
@@ -54,12 +51,10 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+          git_committer_name: ${{ secrets.GIT_COMMITTER_NAME }}
+          git_committer_email: ${{ secrets.GIT_COMMITTER_EMAIL }}
           git_user_signingkey: true
           git_commit_gpgsign: true
-      - name: Set up Git Config
-        run: |
-          git config user.name "Christopher Coco"
-          git config user.email "<christopher@angstrom.io>"
       - name: Get release version from current tag
         run: |
           tag="${{ github.ref_name }}"
