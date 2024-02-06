@@ -25,6 +25,11 @@ jobs:
           file: codemeta.json
           field: version
           value: "${{ env.release-version }}"
+      - name: Set up Git Config
+        run: |
+          git config user.name "Christopher Coco"
+          git config user.email "<christopher@angstrom.io>"
+          git config commit.gpgsign true
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
@@ -32,11 +37,7 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           git_user_signingkey: true
-          git_commit_gpgsign: true
-      - name: Set up Git Config
-        run: |
-          git config user.name "Christopher Coco"
-          git config user.email "<christopher@angstrom.io>"
+          git_commit_gpgsign: true      
       - name: Commit updated codemeta.json file on main branch
         run: |
           git checkout main
