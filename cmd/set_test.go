@@ -149,6 +149,26 @@ func TestSetItemInArrayValue3(t *testing.T) {
 	compare(g, *result, expected)
 }
 
+func TestSetMalformedJSON1(t *testing.T) {
+	json := `{"key": "value"}`
+	path := "key2"
+	// input json object is malformed
+	_, err := setValue([]byte(json), path, `{"first": "value3", second": "value4"`)
+	if err == nil {
+		t.Errorf("Setting property with path `%s` should have returned an error", path)
+	}
+}
+
+func TestSetMalformedJSON2(t *testing.T) {
+	json := `{"key": "value"}`
+	path := "key2"
+	// input json array is malformed
+	_, err := setValue([]byte(json), path, `[1, 2, 3)]`)
+	if err == nil {
+		t.Errorf("Setting property with path `%s` should have returned an error", path)
+	}
+}
+
 func Test_ExecuteSetCmd(t *testing.T) {
 	g := gomega.NewWithT(t)
 
