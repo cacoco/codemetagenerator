@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	internal "github.com/cacoco/codemetagenerator/internal/json"
 	"github.com/cacoco/codemetagenerator/internal/utils"
@@ -38,6 +39,10 @@ func setValue(jsonBytes []byte, path string, value string) (*string, error) {
 	var val any
 	err := oj.Unmarshal([]byte(value), &val)
 	if err != nil {
+		if strings.HasPrefix(value, "{") || strings.HasPrefix(value, "[") {
+			// should be a marshaled object or array
+			return nil, fmt.Errorf("unable to parse the value as JSON: %s", err.Error())
+		}
 		// just treat as a string
 		val = value
 	}

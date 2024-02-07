@@ -45,20 +45,18 @@ Available Commands:
 ```
 
 #### New
-To start a new `codemeta.json` file:
+'New' will walk you through an interactive session and will store an "in-progress" `codemeta.json` file. To start a new `codemeta.json` file:
 
 ```bash
 codemetagenerator new
 ```
 
-This will walk you through an interactive session and will store an "in-progress" `codemeta.json` file. The expectation is that
-you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`. 
+The expectation is that you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`. 
 
-Optionally, the `--input` (or `-i`) can be passed with a path to a file to load as the new in-progress `codemeta.json` file. This 
-allows for editing and updating an existing file which you can then choose to generate back into the original location.
+Optionally, the `-i | --input` flag can be passed with a path to an input file to load as a "new" starting point. This allows for editing and updating an existing file that you can then 'generate' into the original location.
 
 #### Add
-Add helps with the addition of 3 specific fields: `author`, `contributor`, or `keyword`. The command provides a wizard for adding these values. 
+'Add' helps with the addition of 3 specific fields: `author`, `contributor`, or `keyword`. The command provides a wizard for adding these values. 
 
 For example to add an `author`:
 
@@ -66,7 +64,7 @@ For example to add an `author`:
 codemetagenerator add author
 ```
 
-will walk you through an interactive session to create a [`Person`](https://schema.org/Person) or [`Organization`](https://schema.org/Organization) author. This command can be run multiple times to add more authors. Similarly, this can also be done for adding one or more contributors:
+will walk you through an interactive session to create a [`Person`](https://schema.org/Person) or [`Organization`](https://schema.org/Organization) author. This command can be run multiple times to add more authors. This can also be done to add one or more contributors:
 
 ```bash
 codemetagenerator add contributor
@@ -77,34 +75,54 @@ Again, this command can be run multiple times to add more contributors.
 To add one or more keywords:
 
 ```bash
-codemetagenerator add keyword "Java" "JVM" "etc"
+codemetagenerator add keyword 'Java' 'JVM' 'etc'
 ```
 
 The `keyword` command accepts multiple terms but can also be run multiple times to add more keywords.
 
 #### Delete
-Properties can be removed by running the `delete` command. This allows for removing *any value* in the `codemeta.json` file for a given key specified via the [Path Syntax](#path-syntax).
+'Delete' removes properties or values. This allows for removing *any property or value* in the `codemeta.json` file for a given property key specified via the [Path Syntax](#path-syntax).
 
 ```bash
-codemetagenerator delete "version"
+codemetagenerator delete 'version'
 ```
 
 #### Set
-New properties can be inserted or exisiting properties can be updated in the `codemeta.json` file with the `set` command. Keys must be specified via the [Path Syntax](#path-syntax).
+'Set' edits existing or inserts new properties or values in the `codemeta.json` file. Property keys must be specified via the [Path Syntax](#path-syntax).
 
 ```bash
-codemetagenerator set "relatedLink" "https://thisisrelated.org"
+codemetagenerator set 'relatedLink' 'https://thisisrelated.org'
+```
+
+Note that values can be JSON objects or arrays. E.g., 
+
+```bash
+codemetagenerator set 'author.-1' '{"@type":"Person", "@id":"https://orcid.org/0000-0000-1642-999Y", "givenName":"Alice", "familyName":"Smith", "email":"asmith@person.org"}'
+```
+
+In the [Path Syntax](#path-syntax), `-1` denotes appending to an array. Thus this will append the given JSON object to the `author` JSON array. Note that if the given input cannot be parsed into a JSON object or array it will be treated as a string.
+
+Similarly, to set a JSON array value: 
+
+```bash
+codemetagenerator set 'processorRequirements' '["IA64", "IA32"]'
+```
+
+Will set the given JSON array as the value for the property key. Then you could append a value to the array:
+
+```bash
+codemetagenerator set 'processorRequirements.-1' 'x86'  
 ```
 
 #### Generate
-Once creating and editing are done, you can run `generate` to produce a final `codemeta.json`. Generation accepts an optional `-o | --output` flag that allows for specifying an output file. If this flag is not provided, the output is sent to the console.
+'Generate' produces a resultant `codemeta.json` file. Optionally, the `-o | --output` flag can be passed which allows for specifying an output file. If this flag is not provided, the output is generated to the console.
 
 ```bash
 codemetagenerator generate
 ```
 
 ### Path Syntax
-The syntax follows the `sjson` ([https://github.com/tidwall/sjson](https://github.com/tidwall/sjson)) [Path Syntax](https://github.com/tidwall/sjson?tab=readme-ov-file#path-syntax).
+The path syntax for property keys follows the [Syntax](https://github.com/tidwall/sjson?tab=readme-ov-file#path-syntax) from the excellent [tidwall/sjson](https://github.com/tidwall/sjson) project.
 
 
 ## CodeMeta
@@ -123,9 +141,7 @@ The context file [codemeta.jsonld](https://raw.githubusercontent.com/codemeta/co
 A full example can be seen in the [ropensci/codemeter](https://github.com/ropensci/codemetar) GitHub project page: [https://github.com/ropensci/codemetar/blob/main/codemeta.json](https://github.com/ropensci/codemetar/blob/main/codemeta.json).
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
 
 ## License
 [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html)
