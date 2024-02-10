@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
@@ -26,7 +25,7 @@ func new(basedir string, reader utils.Reader, writer utils.Writer, inFile string
 			handleErr(writer, err)
 			return writer.Errorf("unable to read input file %s", inFile)
 		}
-		err = os.WriteFile(inProgressFilePath, bytes, 0644)
+		err = utils.WriteFile(inProgressFilePath, bytes)
 		if err != nil {
 			handleErr(writer, err)
 			return writer.Errorf("unable to write in-progress codemeta.json file")
@@ -154,7 +153,7 @@ func new(basedir string, reader utils.Reader, writer utils.Writer, inFile string
 		result[model.CodeRepository] = codeRepository
 		result[model.Readme] = readme
 
-		codemeta := model.NewCodemeta(&result)
+		codemeta := *model.NewCodemeta(&result)
 
 		err = utils.Marshal(inProgressFilePath, codemeta)
 		if err != nil {
@@ -207,5 +206,5 @@ func init() {
 
 	utils.MkHomeDir(utils.UserHomeDir)
 
-	newCmd.Flags().StringVarP(&inputFile, "input", "i", "", "The path to an input 'codemeta.json' file. If not specified, a new file will be started.")
+	newCmd.Flags().StringVarP(&inputFile, "input", "i", "", "path to an input 'codemeta.json' file. If not specified, a new file will be started.")
 }

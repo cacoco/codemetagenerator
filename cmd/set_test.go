@@ -186,7 +186,7 @@ func Test_ExecuteSetCmd(t *testing.T) {
 	}
 
 	// need an in-progress code meta file
-	err := utils.Marshal(inProgressFilePath, &testMap)
+	err := utils.Marshal(inProgressFilePath, testMap)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

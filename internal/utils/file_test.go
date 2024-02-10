@@ -51,7 +51,7 @@ func TestMarshalUnMasrshal(t *testing.T) {
 	m := map[string]any{"key": "value"}
 
 	// marshal to file
-	err := Marshal(path, &m)
+	err := Marshal(path, m)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

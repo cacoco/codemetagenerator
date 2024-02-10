@@ -58,7 +58,7 @@ When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 		mutateMap := *codemeta
 		addKeywords(stdout, mutateMap, args)
 
-		err = utils.Marshal(inProgressFilePath, &mutateMap)
+		err = utils.Marshal(inProgressFilePath, mutateMap)
 		if err != nil {
 			return fmt.Errorf("unable to save in-progress codemeta.json file after editing: %s", err.Error())
 		} else {

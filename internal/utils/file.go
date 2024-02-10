@@ -61,7 +61,7 @@ func ReadJSON(path string) (*string, error) {
 }
 
 func WriteJSON(path string, json string) error {
-	return os.WriteFile(path, []byte(json), 0644)
+	return WriteFile(path, []byte(json))
 }
 
 func Unmarshal(path string) (*map[string]any, error) {
@@ -74,19 +74,23 @@ func Unmarshal(path string) (*map[string]any, error) {
 	return &m, nil
 }
 
-func Marshal(path string, m *map[string]any, args ...any) error {
+func MarshalBytes(path string, bytes []byte, args ...any) error {
 	var p gen.Parser
-	bytes, err := oj.Marshal(*m, args...)
-	if err != nil {
-		return err
-	}
-
 	node, err := p.Parse(bytes)
 	if err != nil {
 		return err
 	}
 	json := oj.JSON(node, &oj.Options{Sort: true, Indent: 2, OmitNil: true})
 	return WriteJSON(path, json)
+}
+
+func Marshal(path string, m map[string]any, args ...any) error {
+	bytes, err := oj.Marshal(m, args...)
+	if err != nil {
+		return err
+	}
+
+	return MarshalBytes(path, bytes, args...)
 }
 
 func LoadFile(filePath string) ([]byte, error) {
@@ -104,6 +108,10 @@ func LoadFile(filePath string) ([]byte, error) {
 
 func DeleteFile(path string) error {
 	return os.Remove(path)
+}
+
+func WriteFile(path string, bytes []byte) error {
+	return os.WriteFile(path, bytes, 0644)
 }
 
 // converts the full SPDX JSON file into a JSON file of licenseId => reference and store it
@@ -128,7 +136,7 @@ func CacheLicensesFile(basedir string, spdxFileBytes *[]byte, overwrite bool) er
 		})
 
 		// marshal to file
-		err = Marshal(licensesFilePath, &licensesMap)
+		err = Marshal(licensesFilePath, licensesMap)
 		if err != nil {
 			return fmt.Errorf("unable to save translated SPDX licenses file: %s", err.Error())
 		}

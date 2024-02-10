@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	internal "github.com/cacoco/codemetagenerator/internal/json"
@@ -25,7 +24,7 @@ func set(basedir string, args []string) error {
 		return err
 	}
 
-	return os.WriteFile(utils.GetInProgressFilePath(basedir), []byte(*result), 0644)
+	return utils.MarshalBytes(utils.GetInProgressFilePath(basedir), []byte(*result))
 }
 
 func setValue(jsonBytes []byte, path string, value string) (*string, error) {

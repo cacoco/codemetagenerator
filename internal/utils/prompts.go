@@ -3,8 +3,6 @@ package utils
 import (
 	"fmt"
 	"io"
-	"net/mail"
-	"net/url"
 	"strings"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
@@ -12,25 +10,6 @@ import (
 )
 
 func Nop(s string) error {
-	return nil
-}
-
-func ValidUrl(str string) error {
-	u, err := url.Parse(str)
-	if err != nil {
-		return err
-	}
-	if u.Scheme == "" || u.Host == "" {
-		return fmt.Errorf("invalid url: %s", str)
-	}
-	return nil
-}
-
-func ValidEmailAddress(address string) error {
-	_, err := mail.ParseAddress(address)
-	if err != nil {
-		return fmt.Errorf("invalid email address: %s", address)
-	}
 	return nil
 }
 

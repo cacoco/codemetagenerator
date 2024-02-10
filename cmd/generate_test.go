@@ -19,24 +19,23 @@ func Test_ExecuteGenerateCmd(t *testing.T) {
 	// setup
 	os.Mkdir(utils.GetHomeDir(temp), 0755)
 
-	inProgressFilePath := utils.GetInProgressFilePath(temp)
-	tempOutputFilePath := temp + "/codemeta.json"
-
 	testMap := map[string]any{
-		model.Context: model.DefaultContext,
-		model.Type:    model.SoftwareSourceCodeType,
-		"key":         "value",
-		"key2":        []string{"one", "two"},
+		model.Context:               model.DefaultContext,
+		model.Type:                  model.SoftwareSourceCodeType,
+		model.Description:           "description",
+		model.ContinuousIntegration: "https://url.org",
 	}
 
+	inProgressFilePath := utils.GetInProgressFilePath(temp)
 	// need an in-progress code meta file
-	err := utils.Marshal(inProgressFilePath, &testMap)
+	err := utils.Marshal(inProgressFilePath, testMap)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
 	writer := &utils.TestWriter{}
 
+	tempOutputFilePath := temp + "/codemeta.json"
 	generate := &cobra.Command{Use: "generate", RunE: func(cmd *cobra.Command, args []string) error {
 		return generate(temp, writer, tempOutputFilePath)
 	},
@@ -68,4 +67,40 @@ func Test_ExecuteGenerateCmd(t *testing.T) {
 
 	// actual should equal expected
 	g.Ω(output).Should(gomega.Equal(inprogress))
+}
+
+func Test_ExecuteGenerateCmdBadFile(t *testing.T) {
+	temp := t.TempDir()
+	// setup
+	os.Mkdir(utils.GetHomeDir(temp), 0755)
+
+	testMap := map[string]any{
+		model.Context: model.DefaultContext,
+		model.Type:    model.SoftwareSourceCodeType,
+		"key":         "not a valid codemeta term",
+		"key2":        []string{"also", "not", "a", "valid", "codemeta", "term"},
+	}
+
+	inProgressFilePath := utils.GetInProgressFilePath(temp)
+	// need an in-progress code meta file
+	err := utils.Marshal(inProgressFilePath, testMap)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	writer := &utils.TestWriter{}
+
+	generate := &cobra.Command{Use: "generate", RunE: func(cmd *cobra.Command, args []string) error {
+		return generate(temp, writer, "")
+	},
+	}
+	buf := bytes.NewBufferString("")
+	generate.SetOut(buf)
+	generate.SetErr(buf)
+	generate.SetArgs([]string{})
+
+	err = generate.Execute()
+	if err == nil {
+		t.Errorf("Expected error")
+	}
 }

@@ -54,7 +54,7 @@ When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 			mutateMap[model.Author] = append(currentValue.([]any), author)
 		}
 
-		err = utils.Marshal(inProgressFilePath, &mutateMap)
+		err = utils.Marshal(inProgressFilePath, mutateMap)
 		if err != nil {
 			handleErr(writer, err)
 			return fmt.Errorf("unable to save in-progress codemeta.json file after editing")
