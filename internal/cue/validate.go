@@ -25,59 +25,27 @@ import "time"
 #ValidDate: time.Format(time.RFC3339) | time.Format("2006-01-02")
 #ValidTime: time.Format(time.Kitchen24) | time.Format("15:04:05Z") | time.Format("15:04:05-07:00") | time.Format("15:04:05+07:00")
 
-#Action: {
-	#Thing & {
-		'@type': "Action"
-	}
-}
-
-#Event: {
-	#Thing & {
-		'@type': "Event"
-	}
-}
-
-#StructuredValue: {
-	#Thing & {
-		'@type': "StructuredValue"
-	}
-}
-
-#PropertyValue: {
-	#Thing & {
-		'@type': "PropertyValue"
-	}
-	maxValue?: int | float
-	measurementMethod?: string | #ValidURL
-	measurementTechnique?: string | #ValidURL
-	minValue?: int | float
-	propertyID?: string | #ValidURL
-	unitCode?: string | #ValidURL
-	value?: string | int | float | bool | #StructuredValue
-	valueReference?: string | #ValidURL | #PropertyValue | #StructuredValue
-}
-
 #Thing: {
-    '@type': string
+    "@type": string
+	"@id"?: string
 	additionalType?: string | #ValidURL
 	alternateName?: string
-	description?: string
+	description?: string | #Thing
 	disambiguatingDescription?: string
-	identifier?: string | #ValidURL | #PropertyValue
-	image?: string | #ValidURL
-	mainEntityOfPage?: string | #CreativeWork | #ValidURL
+	identifier?:  #Thing | string | #ValidURL
+	image?: #Thing | #ValidURL
+	mainEntityOfPage?: #CreativeWork | #ValidURL
 	name?: string
-	potentialAction?: #Action | [...#Action]
+	potentialAction?: #Thing
 	sameAs?: #ValidURL
-	subjectOf?: string | #CreativeWork | #Event
+	subjectOf?: #CreativeWork | #Thing
 	url?: #ValidURL
 }
 
 #Person: {
 	#Thing & {
-		'@type': "Person"
+		"@type": "Person"
 	}
-	'@id'?: string
 	affiliation?: string | #Organization
 	description?: string
 	email?: #ValidEmail
@@ -87,9 +55,8 @@ import "time"
 
 #Organization: {
 	#Thing & {
-		'@type': "Organization"
+		"@type": "Organization"
 	}
-	'@id'?: string
 	address?: string
 	description?: string
 	email?: #ValidEmail
@@ -97,14 +64,14 @@ import "time"
 
 #ComputerLanguage: {
 	#Thing & {
-		'@type': "ComputerLanguage"
+		"@type": "ComputerLanguage"
 	}
 	version?: string
 }
 
 #ListItem: {
 	#Thing & {
-		'@type': "ListItem"
+		"@type": "ListItem"
 	}
 	item?: string | #Thing
 	nextItem?: string | #ListItem
@@ -114,7 +81,7 @@ import "time"
 
 #ItemList: {
 	#Thing & {
-		'@type': "ItemList"
+		"@type": "ItemList"
 	}
 	itemListElement?: string | #Thing | #ListItem | [...(string | #Thing | #ListItem)]
 	itemListOrder?: string
@@ -123,7 +90,7 @@ import "time"
 
 #AggregateRating: {
 	#Thing & {
-		'@type': "AggregateRating"
+		"@type": "AggregateRating"
 	}
 	itemReviewed?: string | #Thing
 	ratingCount?: int
@@ -132,14 +99,14 @@ import "time"
 
 #DefinedTermSet: {
 	#Thing & {
-		'@type': "DefinedTermSet"
+		"@type": "DefinedTermSet"
 	}
 	hasDefinedTerm?: string | #DefinedTerm | [...(string | #DefinedTerm)]
 }
 
 #DefinedTerm: {
 	#Thing & {
-		'@type': "DefinedTerm"
+		"@type": "DefinedTerm"
 	}
 	inDefinedTermSet?: string | #DefinedTermSet
 	termCode?: string
@@ -147,140 +114,137 @@ import "time"
 
 #CreativeWork: {
 	#Thing & {
+		"@type": string | *"CreativeWork"
 	}
-	about?: string | #Thing
+	about?: #Thing
 	abstract?: string
 	accessMode?: string
-	accessModeSufficient?: string | #ItemList
+	accessModeSufficient?: #ItemList
 	accessibilityAPI?: string
 	accessibilityControl?: string
 	accessibilityFeature?: string
 	accessibilityHazard?: string
 	accessibilitySummary?: string
-	accountablePerson?: #Person
+	accountablePerson?: #Person | [...#Person]
 	acquireLicensePage?: #CreativeWork | #ValidURL
 	aggregateRating?: #AggregateRating
 	alternativeHeadline?: string
-	archivedAt?: string | #ValidURL
-	assesses?: string | #DefinedTerm
-	associatedMedia?: string | #ValidURL
-	audience?: string
-	audio?: string
+	archivedAt?: #ValidURL | #Thing
+	assesses?: #DefinedTerm | string
+	associatedMedia?: #Thing
+	audience?: #Thing
+	audio?: #Thing
 	author?: #Organization | #Person | [...(#Organization | #Person)]
 	award?: string
-	character?: string | #Person
-	citation?: #CreativeWork | #ValidURL | string
-	comment?: string
+	character?: #Person
+	citation?: #CreativeWork | string
+	comment?: #Thing
 	commentCount?: int
 	conditionsOfAccess?: string
-	contentLocation?: string
-	contentRating?: string
+	contentLocation?: #Thing
+	contentRating?: #Thing | string
 	contentReferenceTime?: #ValidDate
 	contributor?: #Organization | #Person | [...(#Organization | #Person)]
 	copyrightHolder?: #Organization | #Person | [...(#Organization | #Person)]
 	copyrightNotice?: string
 	copyrightYear?: int | float
-	correction?: string | #ValidURL
-	countryOfOrigin?: string
-	creativeWorkStatus?: string | #DefinedTerm
+	correction?: #Thing | string | #ValidURL
+	countryOfOrigin?: #Thing
+	creativeWorkStatus?: #DefinedTerm | string
 	creator?: #Organization | #Person | [...(#Organization | #Person)]
 	creditText?: string
 	dateCreated?: #ValidDate
 	dateModified?: #ValidDate
 	datePublished?: #ValidDate
-	digitalSourceType?: string
+	digitalSourceType?: #Thing
 	discussionUrl?: #ValidURL
-	editEIDR?: string | #ValidURL
+	editEIDR?: #ValidURL | string
 	editor?: #Person | [...#Person]
-	educationalAlignment?: string | [...string]
-	educationalLevel?: string | #DefinedTerm | #ValidURL
-	educationalUse?: string | #DefinedTerm
-	encoding?: string
-	encodingFormat?: string | #ValidURL
-	exampleOfWork?: string | #CreativeWork
+	educationalAlignment?: #Thing
+	educationalLevel?: #DefinedTerm | string | #ValidURL
+	educationalUse?: #DefinedTerm | string
+	encoding?: #Thing
+	encodingFormat?: #ValidURL | string
+	exampleOfWork?: #CreativeWork
 	expires?: #ValidDate
-	funder?: string | #Organization | #Person
-	funding?: string
+	funder?: #Organization | #Person | [...(#Organization | #Person)]
+	funding?: string | #Thing
 	genre?: string | #ValidURL
-	hasPart?: string | #CreativeWork
+	hasPart?: #CreativeWork
 	headline?: string
-	inLanguage?: string
-	interactionStatistic?: string
+	inLanguage?: #Thing | string | [...(#Thing | string)]
+	interactionStatistic?: #Thing
 	interactivityType?: string
-	interpretedAsClaim?: string
+	interpretedAsClaim?: #Thing
 	isAccessibleForFree?: bool
-	isBasedOn?: string | #CreativeWork | #ValidURL
+	isBasedOn?: #CreativeWork | #Thing | #ValidURL
 	isFamilyFriendly?: bool
-	isPartOf?: string | #CreativeWork | #ValidURL
-	keywords?: string | [...string]
-	learningResourceType?: string | #DefinedTerm
+	isPartOf?:  #CreativeWork | #ValidURL
+	keywords?: #DefinedTerm | string | #ValidURL | [...(#DefinedTerm | string | #ValidURL)]
+	learningResourceType?: #DefinedTerm | string
 	license?: #CreativeWork | #ValidURL
-	locationCreated?: string
-	mainEntity?: string | #Thing
+	locationCreated?: #Thing
+	mainEntity?: #Thing
 	maintainer?: #Person | #Organization | [...(#Person | #Organization)]
-	material?: string | #ValidURL
+	material?: #Thing | string | #ValidURL
 	materialExtent?: string
 	mentions?: #Thing
-	offers?: string
-	pattern?: string | #DefinedTerm
+	offers?: #Thing
+	pattern?: #DefinedTerm | string
 	position?: int | string
 	producer?: #Organization | #Person | [...(#Organization | #Person)]
 	provider?: #Organization | #Person | [...(#Organization | #Person)]
-	publication?: string
+	publication?: #Thing
 	publisher?: #Organization | #Person | [...(#Organization | #Person)]
-	publisherInprint?: string | #Organization
-	publishingPrinciples?: string | #CreativeWork | #ValidURL
-	recordedAt?: string
-	releasedEvent?: string
-	review?: string
+	publisherInprint?: #Organization
+	publishingPrinciples?: #CreativeWork | #ValidURL
+	recordedAt?: #Thing
+	releasedEvent?: #Thing
+	review?: #Thing
 	schemaVersion?: string | #ValidURL
 	sdDatePublished?: #ValidDate
-	sdLicense?: string | #CreativeWork | #ValidURL
-	sdPublisher?: string | #Organization | #Person
-	size?: string | #DefinedTerm
-	sourceOrganization?: string | #Organization
-	spatial?: string
-	spatialCoverage?: string
+	sdLicense?: #CreativeWork | #ValidURL
+	sdPublisher?: #Organization | #Person
+	size?: #DefinedTerm | #Thing | string
+	sourceOrganization?: #Organization
+	spatial?: #Thing
+	spatialCoverage?: #Thing
 	sponsor?: #Organization | #Person | [...(#Organization | #Person)]
-	teaches?: string | #DefinedTerm
-	temporal?: string | #ValidDate
-	temporalCoverage?: string | #ValidDate | #ValidURL
+	teaches?: #DefinedTerm | string
+	temporal?: #ValidDate | string
+	temporalCoverage?: #ValidDate | string | #ValidURL
 	text?: string
-	thumbnail?: string
+	thumbnail?: #Thing
 	thumbnailUrl?: #ValidURL
-	timeRequired?: string
-	translatonOfWork?: string | #CreativeWork
+	timeRequired?: #Thing
+	translatonOfWork?: #CreativeWork
 	translator?: #Organization | #Person | [...(#Organization | #Person)]
 	typicalAgeRange?: string
-	usageInfo?: string | #CreativeWork | #ValidURL
-	version?: string | int | float
-	video?: string
-	workExample?: string | #CreativeWork
-	workTranslation?: string | #CreativeWork
+	usageInfo?: #CreativeWork | #ValidURL
+	version?: int | float | string
+	video?: #Thing
+	workExample?: #CreativeWork
+	workTranslation?: #CreativeWork
 }
 
 #SoftwareApplication: {
-	#Thing & {
-		'@type': "SoftwareApplication"
-	}
 	#CreativeWork & {
+		"@type": "SoftwareApplication"
 	}
 	name: string
-	version?: string
 	provider?: (#Organization | #Person) | [...(#Organization | #Person)]
 }
 
 #SoftwareSourceCode: {
-	#Thing & {
-		'@type': "SoftwareSourceCode"
-	}
+	"@context": #Context
 	#CreativeWork & {
+		"@type": "SoftwareSourceCode"
 	}
-	'@context': #Context
 	// schema.org terms
 	applicationCategory?: string | #ValidURL
 	applicationSubCategory?: string | #ValidURL
 	codeRepository?: #ValidURL
+	codeSampleType?: string
 	downloadUrl?: #ValidURL
 	fileFormat?: string | #ValidURL
 	fileSize?: string
@@ -289,15 +253,15 @@ import "time"
 	operatingSystem?: string
 	permissions?: string
 	processorRequirements?: string
-	programmingLanguage?: string | #ComputerLanguage   
+	programmingLanguage?: #ComputerLanguage | string
 	relatedLink?: #ValidURL
 	releaseNotes?: string | #ValidURL
 	runtimePlatform?: string
-	softwareHelp?: string | #SoftwareSourceCode
-	softwareRequirements?: string | [...(#SoftwareApplication | #SoftwareSourceCode)]
+	softwareHelp?: #CreativeWork | #SoftwareSourceCode
+	softwareRequirements?: #SoftwareApplication | #SoftwareSourceCode | [...(#SoftwareApplication | #SoftwareSourceCode)]
 	storageRequirements?: string | #ValidURL
-	supportingData?: string
-	targetProduct?: string
+	supportingData?: #Thing
+	targetProduct?: #SoftwareApplication
 	// codemeta terms
 	buildInstructions?: #ValidURL
 	continuousIntegration?: #ValidURL | [...#ValidURL]

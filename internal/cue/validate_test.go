@@ -3,6 +3,8 @@ package cue
 import (
 	"fmt"
 	"testing"
+
+	"github.com/cacoco/codemetagenerator/internal/utils"
 )
 
 func TestValidate(t *testing.T) {
@@ -175,5 +177,29 @@ func TestValidateUrl2(t *testing.T) {
 	err := Validate(bytes)
 	if err == nil {
 		t.Errorf("Expected error")
+	}
+}
+
+func TestCodeMetaFile(t *testing.T) {
+	bytes, err := utils.LoadFile("../../testdata/codemeta.json")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	err = Validate(bytes)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+}
+
+func TestCodemetaRFile(t *testing.T) {
+	bytes, err := utils.LoadFile("../../testdata/codemetaR.json")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	err = Validate(bytes)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
 	}
 }
