@@ -181,7 +181,7 @@ func TestValidateUrl2(t *testing.T) {
 }
 
 func TestCodeMetaFile(t *testing.T) {
-	bytes, err := utils.LoadFile("../../testdata/codemeta.json")
+	bytes, err := utils.LoadFile("../../testdata/CodeMeta.json")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
