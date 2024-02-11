@@ -21,6 +21,20 @@ func TestMkHomeDir(t *testing.T) {
 	}
 }
 
+func TestGetInProgressFilePath(t *testing.T) {
+	g := gomega.NewWithT(t)
+
+	val := GetInProgressFilePath("basedir")
+	g.Ω(val).Should(gomega.Equal("basedir/.codemetagenerator/codemeta.inprogress.json"))
+}
+
+func TestReadJSONFailure(t *testing.T) {
+	_, err := ReadJSON("nonexistentfile")
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
 func TestWriteReadJSON(t *testing.T) {
 	g := gomega.NewWithT(t)
 
@@ -40,6 +54,29 @@ func TestWriteReadJSON(t *testing.T) {
 	}
 	// data in file is pretty printed
 	g.Ω(*data).Should(gomega.Equal("{\n  \"key\": \"value\"\n}"))
+}
+
+func TestUnmarshalFailure(t *testing.T) {
+	_, err := Unmarshal("nonexistentfile")
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
+func TestMarshalBytesFailure(t *testing.T) {
+	temp := t.TempDir()
+	path := temp + "/test.json"
+	err := MarshalBytes(path, []byte("invalidJSON"))
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
+func TestLoadFailure(t *testing.T) {
+	_, err := LoadFile("nonexistentfile")
+	if err == nil {
+		t.Errorf("Expected error")
+	}
 }
 
 func TestMarshalUnMasrshal(t *testing.T) {
@@ -83,6 +120,13 @@ func TestDeleteFile(t *testing.T) {
 	// check file does not exist
 	if _, err := os.Stat(path); err == nil {
 		t.Errorf("File should have been deleted")
+	}
+}
+
+func TestTestGetSupportedLicensesFailure(t *testing.T) {
+	_, err := GetSupportedLicenses("nonexistentdir")
+	if err == nil {
+		t.Errorf("Expected error")
 	}
 }
 

@@ -1,17 +1,39 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/cacoco/codemetagenerator/internal/model"
 	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-func newContributor(reader utils.Reader, writer utils.Writer) (*map[string]any, error) {
+func contributor(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
+	inProgressFilePath := utils.GetInProgressFilePath(basedir)
+
+	codemeta, err := utils.Unmarshal(inProgressFilePath)
+	if err != nil {
+		handleErr(writer, err)
+		return nil, writer.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
+	}
+	mutateMap := *codemeta
+	currrentValue := mutateMap[model.Contributor]
 	contributor, err := utils.NewPersonOrOrganizationPrompt(&reader, &writer, "Contributor")
 	if err != nil {
 		return nil, err
+	}
+	if currrentValue == nil {
+		// set the new contributor as the value
+		mutateMap[model.Contributor] = []any{contributor}
+	} else {
+		// append new contributor to existing contributors
+		mutateMap[model.Contributor] = append(currrentValue.([]any), contributor)
+	}
+
+	err = utils.Marshal(inProgressFilePath, mutateMap)
+	if err != nil {
+		handleErr(writer, err)
+		return nil, writer.Errorf("unable to save in-progress codemeta.json file after editing")
+	} else {
+		writer.Println("⭐ Successfully updated in-progress codemeta.json file.")
 	}
 	return contributor, nil
 }
@@ -32,37 +54,8 @@ Run the "set" command to edit properties of a contributor.
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		reader := &utils.StdinReader{}
-		writer := &utils.StdoutWriter{}
-
-		inProgressFilePath := utils.GetInProgressFilePath(utils.UserHomeDir)
-
-		codemeta, err := utils.Unmarshal(inProgressFilePath)
-		if err != nil {
-			return fmt.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
-		}
-
-		mutateMap := *codemeta
-		currrentValue := mutateMap[model.Contributor]
-		contributor, err := newContributor(reader, writer)
-		if err != nil {
-			handleErr(writer, err)
-			return err
-		}
-		if currrentValue == nil {
-			mutateMap[model.Contributor] = []any{contributor}
-		} else {
-			mutateMap[model.Contributor] = append(currrentValue.([]any), contributor)
-		}
-
-		err = utils.Marshal(inProgressFilePath, mutateMap)
-		if err != nil {
-			handleErr(writer, err)
-			return fmt.Errorf("unable to save in-progress codemeta.json file after editing")
-		} else {
-			fmt.Println("⭐ Successfully updated in-progress codemeta.json file.")
-		}
-		return nil
+		_, err := contributor(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
+		return err
 	},
 }
 

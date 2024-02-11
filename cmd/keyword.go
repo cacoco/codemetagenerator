@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
@@ -9,18 +8,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func addKeywords(writer utils.Writer, codemeta map[string]any, args []string) []string {
-	currentValue := codemeta[model.Keywords]
+func keyword(writer utils.Writer, basedir string, args []string) ([]any, error) {
+	inProgressFilePath := utils.GetInProgressFilePath(basedir)
+
+	codemeta, err := utils.Unmarshal(inProgressFilePath)
+	if err != nil {
+		handleErr(writer, err)
+		return nil, writer.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
+	}
+	mutateMap := *codemeta
+	currentValue := mutateMap[model.Keywords]
 	if currentValue == nil {
-		codemeta[model.Keywords] = args
+		var arr []any = make([]any, len(args))
+		// need to copy into an	array of any type
+		for i, v := range args {
+			arr[i] = v
+		}
+		mutateMap[model.Keywords] = arr
 	} else {
-		for _, arg := range args {
-			codemeta[model.Keywords] = append(codemeta[model.Keywords].([]string), arg)
+		for _, keyword := range args {
+			// since we're ranging over the args, we need to ensure we're appending to the latest value in the map for model.Keywords key
+			mutateMap[model.Keywords] = append(mutateMap[model.Keywords].([]any), keyword)
 		}
 	}
 	writer.Println("Added keyword(s): " + strings.Join(args, ", "))
-	keywords := codemeta[model.Keywords].([]string)
-	return keywords
+	keywords := mutateMap[model.Keywords].([]any)
+
+	err = utils.Marshal(inProgressFilePath, mutateMap)
+	if err != nil {
+		return nil, writer.Errorf("unable to save in-progress codemeta.json file after editing: %s", err.Error())
+	} else {
+		writer.Println("⭐ Successfully updated in-progress codemeta.json file.")
+	}
+	return keywords, nil
+
 }
 
 // keywordCmd represents the keyword command
@@ -46,25 +67,8 @@ properties of a keyword.
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		stdout := &utils.StdoutWriter{}
-
-		inProgressFilePath := utils.GetInProgressFilePath(utils.UserHomeDir)
-
-		codemeta, err := utils.Unmarshal(inProgressFilePath)
-		if err != nil {
-			handleErr(stdout, err)
-			return fmt.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
-		}
-		mutateMap := *codemeta
-		addKeywords(stdout, mutateMap, args)
-
-		err = utils.Marshal(inProgressFilePath, mutateMap)
-		if err != nil {
-			return fmt.Errorf("unable to save in-progress codemeta.json file after editing: %s", err.Error())
-		} else {
-			fmt.Println("⭐ Successfully updated in-progress codemeta.json file.")
-		}
-		return nil
+		_, err := keyword(&utils.StdoutWriter{}, utils.UserHomeDir, args)
+		return err
 	},
 }
 

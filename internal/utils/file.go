@@ -97,13 +97,12 @@ func LoadFile(filePath string) ([]byte, error) {
 	_, err := os.Stat(filePath)
 	if err != nil {
 		return nil, err
-	} else {
-		bytes, err := os.ReadFile(filePath)
-		if err != nil {
-			return nil, err
-		}
-		return bytes, nil
 	}
+	bytes, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }
 
 func DeleteFile(path string) error {

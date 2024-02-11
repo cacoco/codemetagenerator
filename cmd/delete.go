@@ -1,23 +1,19 @@
 package cmd
 
 import (
-	"fmt"
-
 	internal "github.com/cacoco/codemetagenerator/internal/json"
 	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-func delete(writer utils.Writer, basedir string, args []string) error {
-	path := args[0]
-
+func delete(writer utils.Writer, basedir string, propertyPath string) error {
 	bytes, err := utils.LoadFile(utils.GetInProgressFilePath(basedir))
 	if err != nil {
 		handleErr(writer, err)
-		return fmt.Errorf("unable to load the in-progress codemeta.json file")
+		return writer.Errorf("unable to load the in-progress codemeta.json file")
 	}
 
-	result, err := deleteValue(writer, bytes, path)
+	result, err := deleteValue(writer, bytes, propertyPath)
 	if err != nil {
 		return err
 	}
@@ -26,14 +22,14 @@ func delete(writer utils.Writer, basedir string, args []string) error {
 
 func deleteValue(writer utils.Writer, jsonBytes []byte, path string) (*string, error) {
 	if len(path) == 0 {
-		return nil, fmt.Errorf("path is empty")
+		return nil, writer.Errorf("path is empty")
 	}
 
 	json := string(jsonBytes)
 	result, err := internal.Delete(json, path)
 	if err != nil {
 		handleErr(writer, err)
-		return nil, fmt.Errorf("unable to delete the property with path, `%s` in the in-progress codemeta.json file", path)
+		return nil, writer.Errorf("unable to delete the property with path, `%s` in the in-progress codemeta.json file", path)
 	}
 	return &result, nil
 }
@@ -78,7 +74,7 @@ For example, using this json:
 "key3.-1"  => deletes the last element of the "key3" array, ("two").
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return delete(&utils.StdoutWriter{}, utils.UserHomeDir, args)
+		return delete(&utils.StdoutWriter{}, utils.UserHomeDir, args[0])
 	},
 }
 
