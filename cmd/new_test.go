@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Test_ExecuteNewCmd1(t *testing.T) {
+func Test_ExecuteNewCmd(t *testing.T) {
 	g := gomega.NewWithT(t)
 
 	temp := t.TempDir()
@@ -60,16 +60,16 @@ func Test_ExecuteNewCmd1(t *testing.T) {
 
 	writer := utils.TestWriter{}
 
-	new := &cobra.Command{Use: "new", RunE: func(cmd *cobra.Command, args []string) error {
+	newCmd := &cobra.Command{Use: "new", RunE: func(cmd *cobra.Command, args []string) error {
 		return new(temp, &reader, &writer, "")
 	},
 	}
 	buf := bytes.NewBufferString("")
-	new.SetOut(buf)
-	new.SetErr(buf)
-	new.SetArgs([]string{})
+	newCmd.SetOut(buf)
+	newCmd.SetErr(buf)
+	newCmd.SetArgs([]string{})
 
-	err = new.Execute()
+	err = newCmd.Execute()
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -104,7 +104,7 @@ func Test_ExecuteNewCmd1(t *testing.T) {
 	g.Ω(m).Should(gomega.Equal(expected))
 }
 
-func Test_ExecuteNewCmd2(t *testing.T) {
+func Test_ExecuteNewCmdWithInputFlag(t *testing.T) {
 	g := gomega.NewWithT(t)
 
 	temp := t.TempDir()
@@ -127,16 +127,16 @@ func Test_ExecuteNewCmd2(t *testing.T) {
 	reader := utils.TestReader{In: utils.TestStdin{Data: *utils.NilStack}}
 	writer := utils.TestWriter{}
 
-	new := &cobra.Command{Use: "new", RunE: func(cmd *cobra.Command, args []string) error {
+	newCmd := &cobra.Command{Use: "new", RunE: func(cmd *cobra.Command, args []string) error {
 		return new(temp, &reader, &writer, "../testdata/testmeta.json")
 	},
 	}
 	buf := bytes.NewBufferString("")
-	new.SetOut(buf)
-	new.SetErr(buf)
-	new.SetArgs([]string{})
+	newCmd.SetOut(buf)
+	newCmd.SetErr(buf)
+	newCmd.SetArgs([]string{})
 
-	err = new.Execute()
+	err = newCmd.Execute()
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

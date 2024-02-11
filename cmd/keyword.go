@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func addKeywords(writer utils.Writer, basedir string, args []string) ([]any, error) {
+func keyword(writer utils.Writer, basedir string, args []string) ([]any, error) {
 	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 
 	codemeta, err := utils.Unmarshal(inProgressFilePath)
@@ -19,7 +19,12 @@ func addKeywords(writer utils.Writer, basedir string, args []string) ([]any, err
 	mutateMap := *codemeta
 	currentValue := mutateMap[model.Keywords]
 	if currentValue == nil {
-		mutateMap[model.Keywords] = args
+		var arr []any = make([]any, len(args))
+		// need to copy into an	array of any type
+		for i, v := range args {
+			arr[i] = v
+		}
+		mutateMap[model.Keywords] = arr
 	} else {
 		for _, keyword := range args {
 			// since we're ranging over the args, we need to ensure we're appending to the latest value in the map for model.Keywords key
@@ -62,7 +67,7 @@ properties of a keyword.
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := addKeywords(&utils.StdoutWriter{}, utils.UserHomeDir, args)
+		_, err := keyword(&utils.StdoutWriter{}, utils.UserHomeDir, args)
 		return err
 	},
 }

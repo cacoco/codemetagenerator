@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func addAuthor(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
+func author(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
 	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 
 	codemeta, err := utils.Unmarshal(inProgressFilePath)
@@ -54,7 +54,7 @@ need to remove an author, run the "delete" command to remove authors. Run the
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := addAuthor(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
+		_, err := author(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
 		return err
 	},
 }

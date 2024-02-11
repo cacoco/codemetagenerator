@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func addContributor(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
+func contributor(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
 	inProgressFilePath := utils.GetInProgressFilePath(basedir)
 
 	codemeta, err := utils.Unmarshal(inProgressFilePath)
@@ -54,7 +54,7 @@ Run the "set" command to edit properties of a contributor.
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := addContributor(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
+		_, err := contributor(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
 		return err
 	},
 }
