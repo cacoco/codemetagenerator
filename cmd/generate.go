@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/cacoco/codemetagenerator/internal/cue"
 	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -12,6 +13,13 @@ func generate(basedir string, writer utils.Writer, outFile string) error {
 	if err != nil {
 		handleErr(writer, err)
 		return writer.Errorf("unable to read codemeta.inprogress.json file, ensure you have run `codemetagenerator new` at least once")
+	}
+
+	// ensure the codemeta file is valid
+	err = cue.Validate([]byte(*json))
+	if err != nil {
+		handleErr(writer, err)
+		return writer.Errorf("invalid codemeta.json file: %v", err)
 	}
 
 	if outFile != "" {
@@ -47,5 +55,5 @@ printed to the console.`,
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	generateCmd.Flags().StringVarP(&outputFile, "output", "o", "", "The path to the output 'codemeta.json' file. If not specified, the output will be printed to the console.")
+	generateCmd.Flags().StringVarP(&outputFile, "output", "o", "", "path to the output 'codemeta.json' file. If not specified, the output will be printed to the console.")
 }

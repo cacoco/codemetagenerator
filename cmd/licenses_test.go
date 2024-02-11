@@ -18,7 +18,7 @@ func TestGetLicenseReference(t *testing.T) {
 	if le != nil {
 		t.Errorf("Unexpected error: %v", le)
 	}
-	we := os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
+	we := utils.WriteFile(utils.GetLicensesFilePath(temp), file)
 	if we != nil {
 		t.Errorf("Unexpected error: %v", we)
 	}
@@ -44,7 +44,7 @@ func TestValidateLicenseId1(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-	err = os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
+	err = utils.WriteFile(utils.GetLicensesFilePath(temp), file)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

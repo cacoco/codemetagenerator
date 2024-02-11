@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	internal "github.com/cacoco/codemetagenerator/internal/json"
 	"github.com/cacoco/codemetagenerator/internal/utils"
@@ -22,7 +21,7 @@ func delete(writer utils.Writer, basedir string, args []string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(utils.GetInProgressFilePath(basedir), []byte(*result), 0644)
+	return utils.MarshalBytes(utils.GetInProgressFilePath(basedir), []byte(*result))
 }
 
 func deleteValue(writer utils.Writer, jsonBytes []byte, path string) (*string, error) {

@@ -36,19 +36,20 @@ codemetagenerator --help
 Available Commands:
   add         Adds resources [authors, contributors, keywords] to the in-progress codemeta.json file
   clean       Clean the $HOME/.codemetagenerator directory
-  delete      Delete an arbitrary key and its value from the in-progress codemeta.json file.
-  generate    Generate the final codemeta.json file to the optional output file or to the console
+  delete      Delete an arbitrary key and its value from the in-progress codemeta.json file
+  generate    Generate the resultant 'codemeta.json' file to the optional output file or to the console
   help        Help about any command
-  licenses    List (or refresh cached) SPDX license IDs
-  new         Start a new codemeta.json file. When complete, run "codemetagenerator generate" to generate the final codemeta.json file
-  set         Set the value of an arbitrary key in the in-progress codemeta.json file.
+  licenses    List or refresh cached SPDX (https://spdx.org/licenses/) license IDs
+  new         Start a new codemeta.json file for editing. When complete, run "codemetagenerator generate" to generate the resultant 'codemeta.json' file
+  set         Set the value of an arbitrary key in the in-progress codemeta.json file
+  validate    Validates a codemeta.json file
 ```
 
 #### New
 'New' will walk you through an interactive session and will store an "in-progress" `codemeta.json` file. To start a new `codemeta.json` file:
 
 ```bash
-codemetagenerator new
+codemetagenerator new [-i | --input]
 ```
 
 The expectation is that you will continue to add more metadata, e.g., `author`, `contributor`, or `keyword`. 
@@ -118,7 +119,28 @@ codemetagenerator set 'processorRequirements.-1' 'x86'
 'Generate' produces a resultant `codemeta.json` file. Optionally, the `-o | --output` flag can be passed which allows for specifying an output file. If this flag is not provided, the output is generated to the console.
 
 ```bash
-codemetagenerator generate
+codemetagenerator generate [-o | --output]
+```
+
+#### Validate
+'Validate' will determine if a file is a valid CodeMeta-3.0: `https://w3id.org/codemeta/v3.0` `codemeta.json` file based on the [https://schema.org](https://schema.org) defintions and CodeMeta [terms](https://codemeta.github.io/terms/).
+
+```bash
+codemetagenerator validate [-i | --input]
+```
+
+#### Licenses
+'Licenses' will display the list of SPDX licenses downloaded from [https://spdx.org/licenses/](https://spdx.org/licenses/). The list is cached and can be refreshed by passing the `refresh` argument.
+
+```bash
+codemetagenerator licenses [refresh]
+```
+
+#### Clean
+'Clean' deletes the `codemetagenerator` tool working directory (default location is `$HOME/.codemetagenerator`).
+
+```bash
+codemetagenerator clean
 ```
 
 ### Path Syntax

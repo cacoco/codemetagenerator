@@ -22,7 +22,7 @@ func Test_ExecuteNewCmd1(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-	err = os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
+	err = utils.WriteFile(utils.GetLicensesFilePath(temp), file)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -114,7 +114,7 @@ func Test_ExecuteNewCmd2(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-	err = os.WriteFile(utils.GetLicensesFilePath(temp), file, 0644)
+	err = utils.WriteFile(utils.GetLicensesFilePath(temp), file)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
