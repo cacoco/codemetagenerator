@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"testing"
 
 	"github.com/cacoco/codemetagenerator/internal/model"
@@ -8,8 +9,26 @@ import (
 	"github.com/onsi/gomega"
 )
 
-func TestNewAuthor(t *testing.T) {
+func TestAddAuthor(t *testing.T) {
 	g := gomega.NewWithT(t)
+
+	temp := t.TempDir()
+	// setup
+	os.Mkdir(utils.GetHomeDir(temp), 0755)
+
+	testMap := map[string]any{
+		model.Context:               model.DefaultContext,
+		model.Type:                  model.SoftwareSourceCodeType,
+		model.Description:           "description",
+		model.ContinuousIntegration: "https://url.org",
+	}
+
+	inProgressFilePath := utils.GetInProgressFilePath(temp)
+	// need an in-progress code meta file
+	err := utils.Marshal(inProgressFilePath, testMap)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
 
 	var stack utils.Stack[string]
 	stack.Push("id\n")
@@ -20,10 +39,7 @@ func TestNewAuthor(t *testing.T) {
 	reader := utils.TestReader{In: utils.TestStdin{Data: stack}}
 	writer := utils.TestWriter{}
 
-	author, err := newAuthor(&reader, &writer)
-	if author == nil {
-		t.Errorf("Expected author to not be nil")
-	}
+	author, err := addAuthor(&reader, &writer, temp)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}

@@ -1,17 +1,39 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/cacoco/codemetagenerator/internal/model"
 	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-func newAuthor(reader utils.Reader, writer utils.Writer) (*map[string]any, error) {
+func addAuthor(reader utils.Reader, writer utils.Writer, basedir string) (*map[string]any, error) {
+	inProgressFilePath := utils.GetInProgressFilePath(basedir)
+
+	codemeta, err := utils.Unmarshal(inProgressFilePath)
+	if err != nil {
+		handleErr(writer, err)
+		return nil, writer.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
+	}
+	mutateMap := *codemeta
+	currentValue := mutateMap[model.Author]
 	author, err := utils.NewPersonOrOrganizationPrompt(&reader, &writer, "Author")
 	if err != nil {
 		return nil, err
+	}
+	if currentValue == nil {
+		// set the new author as the value
+		mutateMap[model.Author] = []any{author}
+	} else {
+		// append new author to existing authors
+		mutateMap[model.Author] = append(currentValue.([]any), author)
+	}
+
+	err = utils.Marshal(inProgressFilePath, mutateMap)
+	if err != nil {
+		handleErr(writer, err)
+		return nil, writer.Errorf("unable to save in-progress codemeta.json file after editing")
+	} else {
+		writer.Println("⭐ Successfully updated in-progress codemeta.json file.")
 	}
 	return author, nil
 }
@@ -32,36 +54,8 @@ need to remove an author, run the "delete" command to remove authors. Run the
 
 When complete, run "generate" to generate the resultant 'codemeta.json' file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		reader := &utils.StdinReader{}
-		writer := &utils.StdoutWriter{}
-
-		inProgressFilePath := utils.GetInProgressFilePath(utils.UserHomeDir)
-
-		codemeta, err := utils.Unmarshal(inProgressFilePath)
-		if err != nil {
-			handleErr(writer, err)
-			return fmt.Errorf("unable to load the in-progress codemeta.json file for editing. Have you run \"codemetagenerator new\" yet?")
-		}
-		mutateMap := *codemeta
-		currentValue := mutateMap[model.Author]
-		author, err := newAuthor(reader, writer)
-		if err != nil {
-			return err
-		}
-		if currentValue == nil {
-			mutateMap[model.Author] = []any{author}
-		} else {
-			mutateMap[model.Author] = append(currentValue.([]any), author)
-		}
-
-		err = utils.Marshal(inProgressFilePath, mutateMap)
-		if err != nil {
-			handleErr(writer, err)
-			return fmt.Errorf("unable to save in-progress codemeta.json file after editing")
-		} else {
-			fmt.Println("⭐ Successfully updated in-progress codemeta.json file.")
-		}
-		return nil
+		_, err := addAuthor(&utils.StdinReader{}, &utils.StdoutWriter{}, utils.UserHomeDir)
+		return err
 	},
 }
 
