@@ -1,0 +1,29 @@
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "header, diff, flags, components"
+
+component_management:
+  individual_components:
+  - component_id: cmd
+    name: commands
+    paths:
+      - cmd
+  - component_id: internal
+    name: internal
+    paths:
+      - internal
+
+ignore:
+  - "internal/utils/http.go"
+  - "internal/utils/io.go"
+  - "internal/utils/prompts.go"

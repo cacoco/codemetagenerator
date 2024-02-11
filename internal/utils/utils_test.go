@@ -58,3 +58,22 @@ func TestFilter4(t *testing.T) {
 	result := Filter(input, predicate)
 	g.Expect(result).To(gomega.Equal([]any{"hello", "world", "!"}))
 }
+
+func TestValidNumber(t *testing.T) {
+	g := gomega.NewWithT(t)
+
+	err := ValidNumber(1)
+	g.Expect(err).To(gomega.BeNil())
+
+	err = ValidNumber(1.0)
+	g.Expect(err).To(gomega.BeNil())
+
+	err = ValidNumber("1")
+	g.Expect(err).To(gomega.BeNil())
+
+	err = ValidNumber("1.0")
+	g.Expect(err).To(gomega.BeNil())
+
+	err = ValidNumber("hello")
+	g.Expect(err).ToNot(gomega.BeNil())
+}
