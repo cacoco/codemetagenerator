@@ -28,6 +28,7 @@ jobs:
         run: cat TestResults.json
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
-        env:
+        with:
+          files: ./TestResults.json
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: cacoco/codemetagenerator
