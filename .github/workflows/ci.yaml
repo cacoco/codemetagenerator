@@ -22,13 +22,9 @@ jobs:
       - name: Build
         run: go build -v ./...
       - name: Test
-        run: go test ./... -cover -json > TestResults.json
-      - name: Cat results
-        if: always()
-        run: cat TestResults.json
+        run: go test ./... -coverprofile=coverage.out -covermode=atomic
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
-          files: ./TestResults.json
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: cacoco/codemetagenerator
