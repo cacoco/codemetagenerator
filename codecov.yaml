@@ -26,4 +26,6 @@ component_management:
 ignore:
   - "internal/utils/http.go"
   - "internal/utils/io.go"
+  - "internal/json/sjson.go"
+  - "internal/utils/stack.go"
   - "internal/utils/prompts.go"
