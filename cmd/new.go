@@ -115,7 +115,7 @@ func new(basedir string, reader utils.Reader, writer utils.Writer, inFile string
 			return err
 		}
 
-		validateFn := validateLicenseId(basedir)
+		validateFn := validateLicenseId(writer, basedir)
 		license, err := utils.MkPrompt(&stdin, &stdout, "Enter the SPDX license ID for the project (see: https://spdx.org/licenses/)", validateFn)
 		if err != nil {
 			return err
@@ -123,7 +123,7 @@ func new(basedir string, reader utils.Reader, writer utils.Writer, inFile string
 
 		var licenseDetailsUrl string
 		if (*license) != "" {
-			referenceUrl, err := getLicenseReference(basedir, *license)
+			referenceUrl, err := getLicenseReference(writer, basedir, *license)
 			if err != nil {
 				handleErr(writer, err)
 				return writer.Errorf("unable to create new license details URL")

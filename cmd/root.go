@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/cacoco/codemetagenerator/internal/utils"
+	"github.com/ohler55/ojg/oj"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +15,40 @@ var Debug bool
 
 func SetVersionInfo(version, commit, date string) {
 	rootCmd.Version = fmt.Sprintf("%s (Built on %s from Git SHA %s)", version, date, commit)
+}
+
+func validateLicenseId(writer utils.Writer, basedir string) func(string) error {
+	return func(id string) error {
+		supportedLicenses := SupportedLicenses.getSupportedLicenses()
+		if supportedLicenses == nil {
+			return writer.Errorf("SPDX licenses have not be downloaded, please run `codemeta licenses refresh` to download the SPDX licenses")
+		}
+		for _, license := range supportedLicenses {
+			if license == id {
+				return nil
+			}
+		}
+		return writer.Errorf("invalid SPDX license ID: " + id + ", see: https://spdx.org/licenses/ for a list of valid values")
+	}
+}
+
+func getLicenseReference(writer utils.Writer, basedir string, id string) (*string, error) {
+	bytes, err := utils.LoadFile(utils.GetLicensesFilePath(basedir))
+	if err != nil {
+		return nil, err
+	}
+	var licenses map[string]string
+	err = oj.Unmarshal(bytes, &licenses)
+
+	if err != nil {
+		return nil, err
+	}
+
+	reference, ok := licenses[id]
+	if !ok {
+		return nil, writer.Errorf("Invalid license ID: " + id)
+	}
+	return &reference, nil
 }
 
 func loadSupportedLicenses(basedir string, httpClient *http.Client) (*[]string, error) {
