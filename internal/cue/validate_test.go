@@ -203,3 +203,16 @@ func TestCodemetaRFile(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 }
+
+func TestEqualPath(t *testing.T) {
+	a := []string{"a", "b", "c"}
+	b := []string{"a", "b", "c"}
+	if !equalPath(a, b) {
+		t.Errorf("Expected true")
+	}
+
+	b = []string{"a", "b", "d"}
+	if equalPath(a, b) {
+		t.Errorf("Expected false")
+	}
+}

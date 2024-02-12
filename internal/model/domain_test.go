@@ -16,7 +16,10 @@ func TestNewCodeMetaDefinition(t *testing.T) {
 	FamilyName := "familyName"
 	Email := "email"
 	Id := "id"
-	maintainer := NewPerson(&GivenName, &FamilyName, &Email, &Id)
+	OrgName := "orgName"
+	OrgURL := "https://org.url"
+	maintainer := NewOrganization(&OrgName, &OrgURL, &Id)
+	author := NewPerson(&GivenName, &FamilyName, &Email, &Id)
 	codeRepository := "codeRepository"
 	version := "version"
 	developmentStatus := "developmentStatus"
@@ -33,6 +36,7 @@ func TestNewCodeMetaDefinition(t *testing.T) {
 	testbase[Description] = description
 	testbase[Version] = version
 	testbase[Maintainer] = maintainer
+	testbase[Author] = author
 	testbase[ProgrammingLanguage] = programmingLanguage
 	testbase[DevelopmentStatus] = developmentStatus
 	testbase[License] = license
@@ -47,6 +51,7 @@ func TestNewCodeMetaDefinition(t *testing.T) {
 		Description:         description,
 		Name:                name,
 		Maintainer:          maintainer,
+		Author:              author,
 		CodeRepository:      codeRepository,
 		Version:             version,
 		DevelopmentStatus:   developmentStatus,

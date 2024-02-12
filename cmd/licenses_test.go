@@ -1,40 +1,16 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
 	"github.com/cacoco/codemetagenerator/internal/utils"
 	"github.com/onsi/gomega"
+	"github.com/spf13/cobra"
 )
 
-func TestGetLicenseReference(t *testing.T) {
-	g := gomega.NewWithT(t)
-
-	temp := t.TempDir()
-	// setup
-	os.Mkdir(utils.GetHomeDir(temp), 0755)
-	file, le := os.ReadFile("../testdata/spdx-licenses.json")
-	if le != nil {
-		t.Errorf("Unexpected error: %v", le)
-	}
-	we := utils.WriteFile(utils.GetLicensesFilePath(temp), file)
-	if we != nil {
-		t.Errorf("Unexpected error: %v", we)
-	}
-
-	reference, err := getLicenseReference(temp, "Apache-2.0")
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
-	g.Ω(*reference).Should(gomega.Equal("https://spdx.org/licenses/Apache-2.0.html"))
-}
-
-func reset() {
-	SupportedLicenses = Licenses{}
-}
-
-func TestValidateLicenseId1(t *testing.T) {
+func Test_ExecuteLicensesCmd(t *testing.T) {
 	g := gomega.NewWithT(t)
 
 	temp := t.TempDir()
@@ -55,19 +31,23 @@ func TestValidateLicenseId1(t *testing.T) {
 	}
 	SupportedLicenses.setSupportedLicenses(*supported)
 	defer reset() // make sure to reset the global variable
+	writer := utils.TestWriter{}
 
-	var validateFn = validateLicenseId(temp)
-	err = validateFn("Apache-2.0")
-	g.Expect(err).To(gomega.BeNil())
-}
+	var list []string
+	licensesCmd := &cobra.Command{Use: "licenses", RunE: func(cmd *cobra.Command, args []string) error {
+		list, err = licenses(&writer)
+		return err
+	},
+	}
+	buf := bytes.NewBufferString("")
+	licensesCmd.SetOut(buf)
+	licensesCmd.SetErr(buf)
+	licensesCmd.SetArgs([]string{})
 
-func TestValidateLicenseId2(t *testing.T) {
-	g := gomega.NewWithT(t)
+	err = licensesCmd.Execute()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
 
-	temp := t.TempDir()
-
-	// SupportedLicenses is nil, should error
-	var validateFn = validateLicenseId(temp)
-	err := validateFn("Apache-2.0")
-	g.Expect(err).ToNot(gomega.BeNil())
+	g.Ω(list).Should(gomega.Equal(*supported))
 }
