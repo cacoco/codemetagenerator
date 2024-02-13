@@ -24,6 +24,7 @@ component_management:
       - internal
 
 ignore:
+  - "cmd/*.go"
   - "internal/utils/http.go"
   - "internal/utils/io.go"
   - "internal/json/sjson.go"
