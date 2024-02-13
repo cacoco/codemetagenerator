@@ -105,4 +105,4 @@ jobs:
         run: |
           git checkout main
           git commit -am "[release] Update codemeta.json version to ${{ env.release-version }}"
-          git push origin main
+          git push --force origin main
