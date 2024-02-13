@@ -9,21 +9,8 @@ coverage:
       default:
         informational: true
 
-comment:
-  layout: "header, diff, flags, components"
-
-component_management:
-  individual_components:
-  - component_id: cmd
-    name: commands
-    paths:
-      - cmd
-  - component_id: internal
-    name: internal
-    paths:
-      - internal
-
 ignore:
+  - "cmd/*.go"
   - "internal/utils/http.go"
   - "internal/utils/io.go"
   - "internal/json/sjson.go"
